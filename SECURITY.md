@@ -8,7 +8,7 @@ NRSuite is itself a security tool, so vulnerabilities in NRSuite's own code (as 
 
 Instead:
 1. Use GitHub's private vulnerability reporting (Security tab → "Report a vulnerability") if enabled on the repo, **or**
-2. Email the maintainer directly at: `<your-security-contact-email>` *(replace before publishing)*
+2. Email the maintainer directly at: `7wp81x.dev@gmail.com`
 
 Please include:
 - A description of the vulnerability and its potential impact
