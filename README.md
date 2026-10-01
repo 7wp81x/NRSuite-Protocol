@@ -34,6 +34,8 @@ App and firmware releases each declare which spec version they implement. See th
   - [PCAP frames](#pcap-frames)
   - [ACK frames](#ack-frames)
   - [HTML frames](#html-frames)
+- [STATUS Response](#status-response)
 - [Command Reference](#command-reference)
+- [Event Reference](#event-reference)
 - [Error Handling](#error-handling)
 - [Planned Extensions](#planned-extensions)
