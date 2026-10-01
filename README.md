@@ -21,21 +21,20 @@ App and firmware releases each declare which spec version they implement. See th
 
 ---
 
-## Contents
+## Repository layout
 
-- [Physical Transport](#physical-transport)
-- [Frame Format](#frame-format)
-- [Frame Types](#frame-types)
-- [Session Lifecycle](#session-lifecycle)
-- [JSON Payload Schema](#json-payload-schema)
-  - [COMMAND frames](#command-frames)
-  - [RESPONSE frames](#response-frames)
-  - [EVENT frames](#event-frames)
-  - [PCAP frames](#pcap-frames)
-  - [ACK frames](#ack-frames)
-  - [HTML frames](#html-frames)
-- [STATUS Response](#status-response)
-- [Command Reference](#command-reference)
-- [Event Reference](#event-reference)
-- [Error Handling](#error-handling)
-- [Planned Extensions](#planned-extensions)
+- [PROTOCOL-SPEC.md](./PROTOCOL-SPEC.md) - core transport, frame format, session lifecycle, JSON envelope, STATUS response, and error handling
+- [commands/](./commands/README.md) - command reference by radio category
+- [events/](./events/README.md) - event reference by category
+- [COMPATIBILITY.md](./COMPATIBILITY.md) - app/firmware/protocol compatibility matrix
+
+### Core spec sections
+
+- [Physical Transport](./PROTOCOL-SPEC.md#physical-transport)
+- [Frame Format](./PROTOCOL-SPEC.md#frame-format)
+- [Frame Types](./PROTOCOL-SPEC.md#frame-types)
+- [Session Lifecycle](./PROTOCOL-SPEC.md#session-lifecycle)
+- [JSON Payload Schema](./PROTOCOL-SPEC.md#json-payloads)
+- [STATUS Response](./PROTOCOL-SPEC.md#status-response)
+- [Error Handling](./PROTOCOL-SPEC.md#error-handling)
+- [Planned Extensions](./PROTOCOL-SPEC.md#planned-extensions-future-minor-versions)
