@@ -10,6 +10,7 @@ Always check this table when pairing an app release with a firmware release.
 |---|---|---|---|
 | v1.0.0-beta | v1.0.0-beta | v1.0 | Initial beta |
 | v1.0.0-beta.2 | v1.0.0-beta.2 | v1.0 | Defense, BLE recon, multi-device USB, and flasher updates |
+| next mesh beta | next mesh beta | v1.1 draft | Mesh Foundation: HKDF key provisioning, USB auth challenge, master election, session IDs, heartbeat |
 
 ## How to read this table
 
@@ -27,6 +28,7 @@ The app queries the firmware during the connection handshake via `STATUS`:
   "chip": "ESP32-S3",
   "fw": "1.0.0-beta.2",
   "proto": 1,
+  "proto_minor": 0,
   "device_id": "NR1A2B3C4D",
   "features": ["wifi", "sniff", "deauth", "beacon", "portal"]
 }
@@ -35,6 +37,15 @@ The app queries the firmware during the connection handshake via `STATUS`:
 The app displays the firmware version and device ID. Minor version mismatches are generally safe. Major version mismatches may cause command failures.
 
 ## Spec change log
+
+### v1.1 - Mesh Foundation (draft)
+- Add `MESH_PROVISION_KEY`, `MESH_CLEAR_KEY`, `MESH_AUTH_CHALLENGE`, `MESH_STATUS`, `MESH_ACTIVATE`, and `MESH_DEACTIVATE`.
+- Add mesh events: `mesh_status`, `mesh_heartbeat`, `mesh_node_joined`, `mesh_node_left`, `mesh_activation_result`, and `mesh_error`.
+- Add `proto_minor` to `STATUS`; `proto` remains an integer.
+- Add `mesh` feature flag, advertised only when valid derived keys are stored.
+- Document `NRxxxxxxxx` device ID format.
+- Mesh transport uses HKDF-SHA256-derived keys and mbedTLS AES-CCM.
+- No breaking changes to the v1.0 frame format.
 
 ### v1.0 - documentation refresh for beta.2
 - Corrected EVENT envelope documentation from `event` to `type`.
