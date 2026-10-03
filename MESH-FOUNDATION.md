@@ -40,12 +40,15 @@ Use a dedicated NVS namespace, separate from the existing device ID namespace.
 Suggested keys:
 
 ```text
-mesh_initialized
+mesh_init
 mesh_auth_key
-mesh_transport_key
+mesh_trans_key
 mesh_key_id
 mesh_node_id
 ```
+
+> ESP-IDF NVS key names are limited to 15 characters. The names above
+> deliberately stay under that limit.
 
 `mesh_node_id` is the persistent device ID:
 
@@ -53,7 +56,7 @@ mesh_node_id
 NR + 8 hex digits = NRxxxxxxxx (10 characters total)
 ```
 
-The mesh feature flag in `STATUS.features` is advertised only when `mesh_initialized` is true and both derived keys are present.
+The mesh availability flag in `STATUS.features` is advertised only when `mesh_init` is true and both derived keys are present. A separate `mesh_provision` capability flag is advertised whenever the firmware includes mesh support, so the Android app can open the provisioning UI before any keys exist.
 
 ---
 

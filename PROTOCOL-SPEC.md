@@ -261,6 +261,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `msc` | USB MSC mode |
 | `msc_read_chunk` | Chunked `MSC_READ` |
 | `badusb` | Native USB HID BadUSB |
+| `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
 | `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
 
 ---

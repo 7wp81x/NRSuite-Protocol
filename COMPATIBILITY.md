@@ -43,6 +43,7 @@ The app displays the firmware version and device ID. Minor version mismatches ar
 - Add mesh events: `mesh_status`, `mesh_heartbeat`, `mesh_node_joined`, `mesh_node_left`, `mesh_activation_result`, and `mesh_error`.
 - Add `proto_minor` to `STATUS`; `proto` remains an integer.
 - Add `mesh` feature flag, advertised only when valid derived keys are stored.
+- Add `mesh_provision` capability flag, advertised whenever mesh provisioning support is compiled in.
 - Document `NRxxxxxxxx` device ID format.
 - Mesh transport uses HKDF-SHA256-derived keys and mbedTLS AES-CCM.
 - No breaking changes to the v1.0 frame format.
