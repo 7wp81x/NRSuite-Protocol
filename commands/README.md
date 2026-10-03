@@ -9,3 +9,4 @@ Command namespaces:
 - [Defense commands](./defense.md)
 - [BLE commands](./ble.md)
 - [Storage and HID commands](./storage-hid.md)
+- [Mesh commands](./mesh.md) - draft protocol 1.1

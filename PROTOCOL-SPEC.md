@@ -1,6 +1,7 @@
 # NRSuite Wire Protocol Specification
 
 **Version: 1.0**
+**Next draft: 1.1 (Mesh Foundation)**
 **Status: Stable (beta)**
 
 This document is the authoritative reference for the NRSuite Android app and ESP32 firmware transport.
@@ -183,6 +184,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
   "heap": 123456,
   "chip": "ESP32-S3",
   "proto": 1,
+  "proto_minor": 0,
   "fw": "1.0.0-beta.2",
   "device_id": "NR1A2B3C4D",
   "features": ["wifi", "sniff", "deauth", "beacon", "portal"],
@@ -204,8 +206,9 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `heap` | uint32 | Free heap in bytes |
 | `chip` | string | `ESP32`, `ESP32-S2`, `ESP32-S3`, or `ESP32-C3` |
 | `proto` | int | Protocol major version. Currently `1` |
+| `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds will report `1` |
 | `fw` | string | Firmware version |
-| `device_id` | string | Persistent `NRxxxxxxx` ID from NVS |
+| `device_id` | string | Persistent `NRxxxxxxxx` ID from NVS (10 characters total) |
 | `features` | string[] | Compiled feature flags |
 | `sniffing` | bool | Sniffer active |
 | `client_detecting` | bool | Client detector active |
@@ -258,6 +261,8 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `msc` | USB MSC mode |
 | `msc_read_chunk` | Chunked `MSC_READ` |
 | `badusb` | Native USB HID BadUSB |
+| `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
+| `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
 
 ---
 
@@ -291,6 +296,6 @@ Detailed command and event references are split by radio category:
 | Addition | Notes |
 |---|---|
 | FastPair model ID | BLE service-data mapping, app-side |
-| Mesh commands | ESP-NOW mesh activation/status, USB-serial control on master |
+| Mesh foundation | Draft protocol 1.1. See [commands/mesh.md](./commands/mesh.md) and [events/mesh.md](./events/mesh.md) |
 | Peripheral frame type | Reserved `0x07` for sub-GHz/nRF24/RFID data |
 | Fragmentation envelope | `frag` / `frag_total` fields for logical messages over 1024 bytes |

@@ -19,13 +19,15 @@ App and firmware releases each declare which spec version they implement. See th
 
 **Current version: `1.0`**
 
+**Draft next version: `1.1` (Mesh Foundation)**
+
 ---
 
 ## Repository layout
 
 - [PROTOCOL-SPEC.md](./PROTOCOL-SPEC.md) - core transport, frame format, session lifecycle, JSON envelope, STATUS response, and error handling
-- [commands/](./commands/README.md) - command reference by radio category
-- [events/](./events/README.md) - event reference by category
+- [commands/](./commands/README.md) - command reference by radio category, including [mesh commands](./commands/mesh.md)
+- [events/](./events/README.md) - event reference by category, including [mesh events](./events/mesh.md)
 - [COMPATIBILITY.md](./COMPATIBILITY.md) - app/firmware/protocol compatibility matrix
 
 ### Core spec sections
