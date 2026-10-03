@@ -18,7 +18,7 @@ Derived keys are stored in NVS under a dedicated `mesh` namespace.
 | `MESH_PROVISION_KEY` | `{auth_key:"<base64>",transport_key:"<base64>",key_id?}` | `{ok:true}` | Provisions derived keys; never sends the raw passphrase |
 | `MESH_CLEAR_KEY` | none | `{ok:true}` | Removes mesh keys and disables mesh |
 | `MESH_AUTH_CHALLENGE` | `{nonce:"<base64>"}` | `MESH_AUTH_RESPONSE`: `{ok:true,node_id,hmac:"<base64>"}` | Node HMACs the nonce with `auth_key`; app verifies |
-| `MESH_STATUS` | none | `{ok:true,initialized,role,session_id,node_id,peer_count,peers?}` | Current mesh state; `peers` is an optional authoritative snapshot |
+| `MESH_STATUS` | none | `{ok:true,initialized,role,session_id,node_id,peer_count,peers?}` | Current mesh state; `peers` is an optional authoritative snapshot with `node_id`, `chip?`, `role`, `session_id`, `online`, `rssi`, and `last_seen_ms` |
 | `MESH_ACTIVATE` | none | `{ok:true}` | Requests mesh start after successful USB auth |
 | `MESH_DEACTIVATE` | none | `{ok:true}` | Stops mesh but keeps stored keys |
 
