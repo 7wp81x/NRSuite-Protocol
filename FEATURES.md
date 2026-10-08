@@ -46,7 +46,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Activation Handshake | ✅ | Decrypt, auth, replay-counter, and 30 s USB auth window |
 | Session Locking | ✅ | Fresh master session ID; clients lock to it and recover after master reboot |
 | Heartbeat/Auto-Timeout | ✅ | 1 s master heartbeat, 5 s master timeout, 8 s peer timeout |
-| Distributed Sensor Reporting | 🟡 | Phase 3A generic report transport and `node_health` implemented; detector reports pending |
+| Distributed Sensor Reporting | 🟡 | Phase 3A `node_health` transport hardware-validated on S3 + S2; detector reports pending |
 | Triangulation Engine (app-side) | 📋 | Log-distance path-loss + trilateration from 3+ node RSSI reports |
 
 ## 4. Mesh Chat
