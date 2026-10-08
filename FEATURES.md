@@ -39,14 +39,14 @@ This document lists all current and planned features across the NRSuite ecosyste
 
 | Feature | Status | Notes |
 |---|---|---|
-| Shared Group Key Provisioning | 📋 | Key pushed to node via USB/serial, stored in NVS |
-| Dynamic Master Election | 📋 | Whichever node is USB-plugged into the app becomes master |
-| Client Idle/Standby Mode | 📋 | Unplugged nodes idle until valid activation request |
-| Encrypted ESP-NOW Transport | 📋 | AES-CCM link encryption + HMAC payload auth |
-| Activation Handshake | 📋 | Decrypt → HMAC check → nonce/replay check → timestamp window |
-| Session Locking | 📋 | First-valid-master-wins per session, ignores competing requests |
-| Heartbeat/Auto-Timeout | 📋 | Clients revert to idle if master goes silent |
-| Distributed Sensor Reporting | 📋 | Active clients run local detectors, report to master |
+| Shared Group Key Provisioning | ✅ | HKDF-SHA256-derived auth/transport keys provisioned over USB and stored in NVS |
+| Dynamic Master Election | ✅ | USB-authenticated candidate election; existing master forces self-demotion |
+| Client Idle/Standby Mode | ✅ | Provisioned nodes passively listen after reboot and auto-join a valid master |
+| Encrypted ESP-NOW Transport | ✅ | AES-CCM transport encryption with replay protection |
+| Activation Handshake | ✅ | Decrypt, auth, replay-counter, and 30 s USB auth window |
+| Session Locking | ✅ | Fresh master session ID; clients lock to it and recover after master reboot |
+| Heartbeat/Auto-Timeout | ✅ | 1 s master heartbeat, 5 s master timeout, 8 s peer timeout |
+| Distributed Sensor Reporting | 🟡 | Phase 3A `node_health` transport hardware-validated on S3 + S2; detector reports pending |
 | Triangulation Engine (app-side) | 📋 | Log-distance path-loss + trilateration from 3+ node RSSI reports |
 
 ## 4. Mesh Chat

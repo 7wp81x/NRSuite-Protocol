@@ -265,10 +265,18 @@ mesh_error
 Later phases:
 
 ```text
-mesh_sensor_report
 mesh_chat
 mesh_route
 ```
+
+Phase 3A adds the current event:
+
+```text
+mesh_sensor_report
+```
+
+with `kind = "node_health"` and generic `data_b64` support for unknown
+report kinds.
 
 ---
 
