@@ -27,7 +27,7 @@ Common fields:
 | `chip` | string? | Peer chip label if known |
 | `role` | string | `master` or `client` |
 | `session_id` | number? | Mesh session that received the report |
-| `kind` | string | `node_health` for Phase 3A; unknown kinds use `data_b64` |
+| `kind` | string | `node_health` (Phase 3A), `deauth` (Phase 3B); unknown kinds use `data_b64` |
 | `seq` | number | Report sequence |
 | `channel` | number | Channel reported by the node |
 | `rssi` | number? | Master's receive RSSI for the report |
@@ -40,6 +40,21 @@ Common fields:
 | `heap` | number | Free heap bytes |
 | `role` | string | `master` or `client` |
 | `channel` | number | Current mesh channel |
+
+`deauth` fields (Phase 3B):
+
+| Field | Type | Notes |
+|---|---|---|
+| `reason` | number | Deauth/disassoc reason code |
+| `channel` | number | Channel where the frame was observed |
+| `rssi` | number | RSSI observed by the reporting node |
+| `source` | string | Source/BSSID address |
+| `target` | string | Target/client address; `FF:FF:FF:FF:FF:FF` for broadcast |
+| `seq` | number | Stable per-observation ID; retries reuse it for dedupe |
+
+Phase 3B also adds the encrypted internal ESP-NOW packet
+`PKT_DETECTOR_CONTROL = 6` for master-to-client start/stop control. It is not
+a USB event and is documented in [MESH-FOUNDATION.md](../MESH-FOUNDATION.md).
 
 Unknown report kinds carry:
 

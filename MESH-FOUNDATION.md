@@ -1,7 +1,7 @@
 # NRSuite Mesh Foundation
 
-Status: design draft for protocol `1.1`
-Scope: Phase 1 ESP-NOW mesh membership, authentication, master election, and heartbeat
+Status: implemented through Phase 3B for protocol `1.1`; Phase 3B hardware validation pending
+Scope: ESP-NOW mesh membership, authentication, master election, heartbeat, channel management, and encrypted sensor-report transport
 
 This document captures the accepted design constraints before firmware implementation begins.
 
@@ -269,14 +269,43 @@ mesh_chat
 mesh_route
 ```
 
-Phase 3A adds the current event:
+Phase 3A adds the current USB-visible event:
 
 ```text
 mesh_sensor_report
 ```
 
 with `kind = "node_health"` and generic `data_b64` support for unknown
-report kinds.
+report kinds. Phase 3B extends the same event with `kind = "deauth"`.
+
+### 10.1 Internal detector control packet (Phase 3B)
+
+`PKT_DETECTOR_CONTROL = 6` is an encrypted ESP-NOW packet between mesh
+members. It is not exposed over USB; Android still uses
+`DEAUTH_DETECT_START` / `DEAUTH_DETECT_STOP` with a distributed/mesh flag.
+
+Payload:
+
+```text
+byte 0      start (1) / stop (0)
+byte 1      mode: 0 = same_channel, 1 = fixed, 2 = hop
+byte 2      detector channel
+byte 3..4   mesh window ms (little-endian u16)
+byte 5..6   detector window ms (little-endian u16)
+byte 7..8   detector hop dwell ms (little-endian u16)
+```
+
+Security and delivery rules:
+
+- encrypted with the mesh transport key (same `PKT_*` AES-CCM envelope)
+- accepted only when the sender role is `ROLE_MASTER`
+- `sessionId == _sessionId`; stale sessions are ignored
+- start/stop controls are retried a small number of times because clients may
+  be temporarily off-channel in a detector window
+
+Deauth observations are sent as `PKT_SENSOR_REPORT` with
+`kind = 2 (deauth)`. Each observation has a stable `seq` assigned when queued;
+retries reuse it so the Android app can deduplicate by `(node_id, seq)`.
 
 ---
 
