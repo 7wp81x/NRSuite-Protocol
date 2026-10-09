@@ -293,6 +293,7 @@ byte 2      detector channel
 byte 3..4   mesh window ms (little-endian u16)
 byte 5..6   detector window ms (little-endian u16)
 byte 7..8   detector hop dwell ms (little-endian u16)
+byte 9..10  hop channel mask (little-endian u16; 0 = full 1..13 list)
 ```
 
 Security and delivery rules:
@@ -302,6 +303,9 @@ Security and delivery rules:
 - `sessionId == _sessionId`; stale sessions are ignored
 - start/stop controls are retried a small number of times because clients may
   be temporarily off-channel in a detector window
+
+The optional hop channel mask allows the app to request a focus-hop list
+instead of the full `1..13` sweep. A zero mask means full hopping.
 
 Deauth observations are sent as `PKT_SENSOR_REPORT` with
 `kind = 2 (deauth)`. Each observation has a stable `seq` assigned when queued;
