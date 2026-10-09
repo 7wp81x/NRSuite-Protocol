@@ -330,11 +330,19 @@ byte 1..4   switch_id (little-endian u32)
 
 Master flow:
 
-1. broadcast `request`
-2. collect encrypted ACKs from online clients
-3. when all online clients ACK, or after the ACK timeout, broadcast `commit`
-4. switch to the target channel after a short commit delay
-5. emit `mesh_channel_switch` USB events with `acked` and `pending` node lists
+1. persist the target channel in NVS as durable operator intent
+2. broadcast `request`
+3. collect encrypted ACKs from online clients
+4. when all online clients ACK, or after the ACK timeout, broadcast `commit`
+5. after a short commit delay, call `esp_wifi_set_channel(target)` and verify
+   the live radio channel before declaring success
+6. emit `mesh_channel_switch` USB events with `acked` and `pending` node lists;
+   `phase="committed"` means the live channel actually changed, while
+   `phase="failed"` means the driver rejected the target after retries
+
+The Android app waits for `phase="committed"` before updating the mesh
+channel UI or allowing mesh stop/deactivate. Persisting before step 2 ensures a
+stop or unplug during the handshake cannot lose the requested channel.
 
 Client flow:
 
@@ -342,7 +350,8 @@ Client flow:
 2. wait for `commit`
 3. switch to the target channel without persisting it yet
 4. stay on the target channel for 60 seconds, retrying join/reports
-5. if a master heartbeat arrives, persist the channel through normal adoption
+5. if a master heartbeat arrives, persist the actual live channel through
+   normal adoption
 6. if no master arrives within 60 seconds, resume recovery hopping
 
 Implementation note: a heartbeat arriving on the old channel during the commit
@@ -360,7 +369,7 @@ master peer table.
 Payload:
 
 ```text
-byte 0      master channel
+byte 0      master live radio channel (`esp_wifi_get_channel()`)
 byte 1..4   target client node hash (little-endian u32)
 ```
 

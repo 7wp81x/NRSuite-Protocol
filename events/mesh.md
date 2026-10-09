@@ -6,8 +6,8 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `mesh_status` | `initialized`, `role`, `session_id?`, `node_id`, `peer_count` | Mesh state changed |
-| `mesh_heartbeat` | `node_id`, `chip?`, `role`, `session_id`, `channel`, `uptime_ms`, `seq` | Master heartbeat forwarded over USB |
+| `mesh_status` | `initialized`, `role`, `session_id?`, `node_id`, `channel`, `radio_channel`, `scan_channel`, `join_ack_received`, `join_wait_ms`, `last_master_seen_ms`, `peer_count` | Mesh state changed. `channel` is logical/adopted; `radio_channel` is the live driver channel |
+| `mesh_heartbeat` | `node_id`, `chip?`, `role`, `session_id`, `channel`, `radio_channel`, `scan_channel`, `uptime_ms`, `seq` | Master heartbeat forwarded over USB |
 | `mesh_node_joined` | `node_id`, `chip?`, `session_id`, `channel`, `rssi?` | A client joined the active session |
 | `mesh_node_left` | `node_id`, `session_id`, `reason?` | A client timed out or left |
 | `mesh_activation_result` | `role`, `session_id?`, `ok`, `reason?` | Result of `MESH_ACTIVATE` |
@@ -62,9 +62,12 @@ documented in [MESH-FOUNDATION.md](../MESH-FOUNDATION.md).
 
 Phase 3B adds an ACK-based channel switch handshake:
 
-- master sends `request`
+- master persists the target channel in NVS before sending `request`
 - clients reply with an encrypted ACK
 - master sends `commit` after all online clients ACK or after the ACK timeout
+- master switches its live radio channel and emits `committed` only after
+  `esp_wifi_set_channel()` succeeds; `failed` is emitted if the driver rejects
+  the target after retries
 - clients move to the target channel and hold there for 60 seconds
 - if no master is seen during the hold, the client resumes recovery hopping
 
@@ -72,8 +75,10 @@ Fields:
 
 | Field | Type | Notes |
 |---|---|---|
-| `phase` | string | `request`, `ack`, `commit`, or `committed` |
+| `phase` | string | `request`, `ack`, `commit`, `committed`, `retry`, or `failed` |
 | `channel` | number | Target channel |
+| `target_channel` | number | Target channel (alias of `channel`) |
+| `radio_channel` | number | Master's live radio channel when the event was emitted |
 | `switch_id` | number | Random switch operation ID |
 | `acked` | array[string] | Client node IDs that ACKed |
 | `pending` | array[string] | Online clients that have not ACKed yet |

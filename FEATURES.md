@@ -46,8 +46,8 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Activation Handshake | ✅ | Decrypt, auth, replay-counter, and 30 s USB auth window |
 | Session Locking | ✅ | Fresh master session ID; clients lock to it and recover after master reboot |
 | Heartbeat/Auto-Timeout | ✅ | 1 s master heartbeat, 5 s master timeout, 8 s peer timeout |
-| Channel Switch ACK Handshake | ✅ | Encrypted request/ACK/commit with timeout fallback and client 60 s hold; hardware-validated on S3 + S2 |
-| Join ACK Handshake | 🟡 | Master ACKs accepted clients; clients only persist/lock a channel after JOIN_ACK; hardware validation pending |
+| Channel Switch ACK Handshake | ✅ | Encrypted request/ACK/commit; master persists target before request and verifies the live radio channel before `committed`; timeout fallback and client 60 s hold; hardware-validated on S3 + S2 (durable-target fix pending hardware revalidation) |
+| Join ACK Handshake | 🟡 | Master ACKs accepted clients with its live radio channel; clients only persist/lock after JOIN_ACK; hardware validation pending |
 | Detector Focus-Hop | 🟡 | App-supplied hop channel mask limits hopping to detected channels; hardware validation pending |
 | Distributed Sensor Reporting | 🟡 | Phase 3A `node_health` transport hardware-validated on S3 + S2; Phase 3B same-channel deauth report transport hardware-validated on S3 + S2, fixed/hop pending |
 | Triangulation Engine (app-side) | 📋 | Log-distance path-loss + trilateration from 3+ node RSSI reports |

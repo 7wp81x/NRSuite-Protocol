@@ -18,8 +18,8 @@ Derived keys are stored in NVS under a dedicated `mesh` namespace.
 | `MESH_PROVISION_KEY` | `{auth_key:"<base64>",transport_key:"<base64>",key_id?,channel?}` | `{ok:true}` | Provisions derived keys and optional mesh channel (1-13); never sends the raw passphrase |
 | `MESH_CLEAR_KEY` | none | `{ok:true}` | Removes mesh keys and disables mesh |
 | `MESH_AUTH_CHALLENGE` | `{nonce:"<base64>"}` | `MESH_AUTH_RESPONSE`: `{ok:true,node_id,hmac:"<base64>"}` | Node HMACs the nonce with `auth_key`; app verifies |
-| `MESH_STATUS` | none | `{ok:true,initialized,role,session_id,node_id,channel,peer_count,peers?}` | Current mesh state; `peers` is an optional authoritative snapshot with `node_id`, `chip?`, `role`, `session_id`, `online`, `rssi`, and `last_seen_ms` |
-| `MESH_SET_CHANNEL` | `{channel:1..13}` | `{ok:true}` | Master requests a mesh channel switch; non-master nodes persist it for the next activation |
+| `MESH_STATUS` | none | `{ok:true,initialized,role,session_id,node_id,channel,radio_channel,scan_channel,join_ack_received,join_wait_ms,last_master_seen_ms,peer_count,peers?}` | Current mesh state. `channel` is the logical/adopted channel; `radio_channel` is read back from `esp_wifi_get_channel()`. `peers` is an optional authoritative snapshot with `node_id`, `chip?`, `role`, `session_id`, `online`, `rssi`, and `last_seen_ms` |
+| `MESH_SET_CHANNEL` | `{channel:1..13}` | `{ok:true}` | Master starts the ACK/commit switch handshake and persists the target before the request is sent. The app must wait for `mesh_channel_switch phase="committed"` before treating the channel as applied. Non-master nodes persist the channel for the next activation instead of leaving the current master |
 | `MESH_ACTIVATE` | none | `{ok:true}` | Requests mesh start after successful USB auth |
 | `MESH_DEACTIVATE` | none | `{ok:true}` | Stops mesh but keeps stored keys |
 
