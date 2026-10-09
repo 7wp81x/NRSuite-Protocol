@@ -12,6 +12,7 @@ Every event includes `type` plus event-specific fields.
 | `mesh_node_left` | `node_id`, `session_id`, `reason?` | A client timed out or left |
 | `mesh_activation_result` | `role`, `session_id?`, `ok`, `reason?` | Result of `MESH_ACTIVATE` |
 | `mesh_sensor_report` | `node_id`, `chip?`, `role`, `session_id?`, `kind`, `seq`, `channel`, `rssi?`, plus report-specific fields | Master-forwarded encrypted sensor report |
+| `mesh_channel_switch` | `phase`, `channel`, `switch_id`, `acked`, `pending`, `acked_count`, `pending_count`, `reason?` | Master-side channel switch request/ACK/commit status |
 | `mesh_error` | `code`, `msg` | Mesh runtime or auth error |
 
 ## `mesh_sensor_report`
@@ -55,6 +56,32 @@ Common fields:
 Phase 3B also adds the encrypted internal ESP-NOW packet
 `PKT_DETECTOR_CONTROL = 6` for master-to-client start/stop control. It is not
 a USB event and is documented in [MESH-FOUNDATION.md](../MESH-FOUNDATION.md).
+
+## `mesh_channel_switch`
+
+Phase 3B adds an ACK-based channel switch handshake:
+
+- master sends `request`
+- clients reply with an encrypted ACK
+- master sends `commit` after all online clients ACK or after the ACK timeout
+- clients move to the target channel and hold there for 60 seconds
+- if no master is seen during the hold, the client resumes recovery hopping
+
+Fields:
+
+| Field | Type | Notes |
+|---|---|---|
+| `phase` | string | `request`, `ack`, `commit`, or `committed` |
+| `channel` | number | Target channel |
+| `switch_id` | number | Random switch operation ID |
+| `acked` | array[string] | Client node IDs that ACKed |
+| `pending` | array[string] | Online clients that have not ACKed yet |
+| `acked_count` | number | `acked.length` |
+| `pending_count` | number | `pending.length` |
+| `reason` | string? | `all_acked`, `ack_timeout`, or other detail |
+
+`PKT_CHANNEL_SWITCH_ACK = 7` is an internal encrypted ESP-NOW packet and is
+not exposed directly as a USB event.
 
 Unknown report kinds carry:
 

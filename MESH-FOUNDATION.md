@@ -307,6 +307,40 @@ Deauth observations are sent as `PKT_SENSOR_REPORT` with
 `kind = 2 (deauth)`. Each observation has a stable `seq` assigned when queued;
 retries reuse it so the Android app can deduplicate by `(node_id, seq)`.
 
+### 10.2 Channel switch ACK handshake (Phase 3B)
+
+`PKT_CHANNEL_SWITCH` now carries a small payload:
+
+```text
+byte 0      phase: 1 = request, 2 = commit
+byte 1      target channel
+byte 2..5   switch_id (little-endian u32)
+```
+
+`PKT_CHANNEL_SWITCH_ACK = 7` is sent by clients:
+
+```text
+byte 0      target channel
+byte 1..4   switch_id (little-endian u32)
+```
+
+Master flow:
+
+1. broadcast `request`
+2. collect encrypted ACKs from online clients
+3. when all online clients ACK, or after the ACK timeout, broadcast `commit`
+4. switch to the target channel after a short commit delay
+5. emit `mesh_channel_switch` USB events with `acked` and `pending` node lists
+
+Client flow:
+
+1. reply ACK to `request`
+2. wait for `commit`
+3. switch to the target channel without persisting it yet
+4. stay on the target channel for 60 seconds, retrying join/reports
+5. if a master heartbeat arrives, persist the channel through normal adoption
+6. if no master arrives within 60 seconds, resume recovery hopping
+
 ---
 
 ## 11. Testing requirements
