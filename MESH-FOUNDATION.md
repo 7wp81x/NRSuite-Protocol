@@ -341,6 +341,11 @@ Client flow:
 5. if a master heartbeat arrives, persist the channel through normal adoption
 6. if no master arrives within 60 seconds, resume recovery hopping
 
+Implementation note: a heartbeat arriving on the old channel during the commit
+delay must not cancel a pending switch. The client preserves pending switch
+state until the commit delay expires. This was hardware-validated on
+ESP32-S3 + ESP32-S2.
+
 ---
 
 ## 11. Testing requirements
