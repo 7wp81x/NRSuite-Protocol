@@ -342,7 +342,9 @@ Master flow:
 
 The Android app waits for `phase="committed"` before updating the mesh
 channel UI or allowing mesh stop/deactivate. Persisting before step 2 ensures a
-stop or unplug during the handshake cannot lose the requested channel.
+stop or unplug during the handshake cannot lose the requested channel; stop
+also reloads the NVS value so a same-boot stop/restart uses the durable
+target.
 
 Client flow:
 
