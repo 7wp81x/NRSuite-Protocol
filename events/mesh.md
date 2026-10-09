@@ -53,9 +53,10 @@ Common fields:
 | `target` | string | Target/client address; `FF:FF:FF:FF:FF:FF` for broadcast |
 | `seq` | number | Stable per-observation ID; retries reuse it for dedupe |
 
-Phase 3B also adds the encrypted internal ESP-NOW packet
-`PKT_DETECTOR_CONTROL = 6` for master-to-client start/stop control. It is not
-a USB event and is documented in [MESH-FOUNDATION.md](../MESH-FOUNDATION.md).
+Phase 3B also adds the encrypted internal ESP-NOW packets
+`PKT_DETECTOR_CONTROL = 6` for master-to-client start/stop control and
+`PKT_JOIN_ACK = 8` for JOIN acceptance. They are not USB events and are
+documented in [MESH-FOUNDATION.md](../MESH-FOUNDATION.md).
 
 ## `mesh_channel_switch`
 

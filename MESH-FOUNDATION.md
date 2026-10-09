@@ -346,6 +346,39 @@ delay must not cancel a pending switch. The client preserves pending switch
 state until the commit delay expires. This was hardware-validated on
 ESP32-S3 + ESP32-S2.
 
+
+### 10.3 Join ACK handshake (Phase 3B hardening)
+
+`PKT_JOIN_ACK = 8` is an internal encrypted ESP-NOW packet. It confirms that
+the master accepted a client's `PKT_JOIN` and that the client exists in the
+master peer table.
+
+Payload:
+
+```text
+byte 0      master channel
+byte 1..4   target client node hash (little-endian u32)
+```
+
+Master flow:
+
+1. receive and authenticate `PKT_JOIN`
+2. add/update the client in the peer table
+3. send `PKT_JOIN_ACK` addressed to that client
+
+Client flow:
+
+1. hear an authenticated master heartbeat
+2. switch to that master channel as a candidate
+3. send `PKT_JOIN` every 2 seconds
+4. wait for a matching `PKT_JOIN_ACK`
+5. only then persist the channel and enter fully joined/online state
+6. if no ACK arrives within 6 seconds, return to idle and resume channel
+   recovery hopping
+
+This prevents a client from marking a master online and locking to its channel
+when the master has not actually accepted the client.
+
 ---
 
 ## 11. Testing requirements
