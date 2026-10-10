@@ -303,6 +303,9 @@ Security and delivery rules:
 - `sessionId == _sessionId`; stale sessions are ignored
 - start/stop controls are retried a small number of times because clients may
   be temporarily off-channel in a detector window
+- when a new client first joins, the master re-sends the active detector
+  configuration so the new node automatically participates in an already
+  running distributed detector
 
 The optional hop channel mask was reserved for distributed focus-hop. Distributed HOP is temporarily disabled in current builds; same-channel and fixed modes remain active.
 
