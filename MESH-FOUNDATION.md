@@ -288,7 +288,7 @@ Payload:
 
 ```text
 byte 0      start (1) / stop (0)
-byte 1      mode: 0 = same_channel, 1 = fixed, 2 = hop
+byte 1      mode: 0 = same_channel, 1 = fixed, 2 = reserved (distributed HOP temporarily disabled)
 byte 2      detector channel
 byte 3..4   mesh window ms (little-endian u16)
 byte 5..6   detector window ms (little-endian u16)
@@ -304,8 +304,7 @@ Security and delivery rules:
 - start/stop controls are retried a small number of times because clients may
   be temporarily off-channel in a detector window
 
-The optional hop channel mask allows the app to request a focus-hop list
-instead of the full `1..13` sweep. A zero mask means full hopping.
+The optional hop channel mask was reserved for distributed focus-hop. Distributed HOP is temporarily disabled in current builds; same-channel and fixed modes remain active.
 
 Deauth observations are sent as `PKT_SENSOR_REPORT` with
 `kind = 2 (deauth)`. Each observation has a stable `seq` assigned when queued;
