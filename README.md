@@ -8,6 +8,16 @@ If your change adds, removes, or modifies any command, response field, or frame 
 
 ---
 
+## Community
+
+Join the NRSuite Discord server for setup help, build showcases, release news, and development discussion:
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20server-5865F2?logo=discord&logoColor=white)](https://discord.gg/nnU9QSX5UZ)
+
+Use `#support` for help, `#showcase` for builds, and `#github` for repo/code discussion.
+
+---
+
 ## Versioning
 
 This spec uses `MAJOR.MINOR` versioning:
