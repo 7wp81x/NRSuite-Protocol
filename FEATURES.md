@@ -45,7 +45,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Encrypted ESP-NOW Transport | ✅ | AES-CCM transport encryption with replay protection |
 | Activation Handshake | ✅ | Decrypt, auth, replay-counter, and 30 s USB auth window |
 | Session Locking | ✅ | Fresh master session ID; clients lock to it and recover after master reboot |
-| Heartbeat/Auto-Timeout | ✅ | 1 s master heartbeat, 5 s master timeout, 8 s peer timeout |
+| Heartbeat/Auto-Timeout | ✅ | 1 s master heartbeat, 5 s master timeout, 12 s peer timeout |
 | Channel Switch ACK Handshake | ✅ | Encrypted request/ACK/commit; master persists target before request and verifies the live radio channel before `committed`; timeout fallback and client 60 s hold; hardware-validated on S3 + S2 (durable-target fix pending hardware revalidation) |
 | Join ACK Handshake | 🟡 | Master ACKs accepted clients with its live radio channel; clients only persist/lock after JOIN_ACK; hardware validation pending |
 | Detector Focus-Hop | 🟡 | App-supplied hop channel mask limits hopping to detected channels; hardware validation pending |
