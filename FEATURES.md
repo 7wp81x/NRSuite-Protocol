@@ -49,7 +49,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Channel Switch ACK Handshake | ✅ | Encrypted request/ACK/commit; master persists target before request and verifies the live radio channel before `committed`; timeout fallback and client 60 s hold; hardware-validated on S3 + S2 (durable-target fix pending hardware revalidation) |
 | Join ACK Handshake | 🟡 | Master ACKs accepted clients with its live radio channel; clients only persist/lock after JOIN_ACK; hardware validation pending |
 | Detector Focus-Hop | ⏸️ | Distributed focus-hop removed from the UI/firmware path for now while time slicing is redesigned; local detector hopping remains available |
-| Mesh Scan | 🟡 | Master-coordinated same-channel AP scan with per-node RSSI reporting; fixed/assigned channels later |
+| Mesh Scan | 🟡 | Master + client same-channel AP scan with per-node RSSI reporting; fixed/assigned channels later |
 | Distributed Sensor Reporting | 🟡 | Phase 3A `node_health` transport hardware-validated on S3 + S2; Phase 3B same-channel deauth report transport hardware-validated on S3 + S2, fixed pending, distributed HOP temporarily removed; new clients auto-join an active detector |
 | Triangulation Engine (app-side) | 📋 | Log-distance path-loss + trilateration from 3+ node RSSI reports |
 

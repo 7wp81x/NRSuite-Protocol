@@ -328,7 +328,7 @@ Master flow:
 
 1. app sends `MESH_SCAN_START`
 2. master broadcasts `PKT_SCAN_CONTROL` with the current/selected mesh channel
-3. clients briefly scan that channel and report AP observations as
+3. master and clients briefly scan that channel and report AP observations as
    `PKT_SENSOR_REPORT` with `kind = 3 (scan)`
 4. master forwards each report to Android as `mesh_sensor_report kind="scan"`
 5. `MESH_SCAN_STOP` clears the active scan control
