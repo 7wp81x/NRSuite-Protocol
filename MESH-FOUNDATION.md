@@ -192,6 +192,12 @@ Mesh packet authentication and replay protection should use:
 - monotonic counter or nonce
 - session ID binding
 - optional timestamp window
+- a boot ID so counter resets on reboot do not reuse a nonce
+
+The counter remains monotonic across mesh stop/start, `STOP_ALL`, and
+re-activation within the same boot. Replay state is reset only when the peer's
+boot ID changes; session changes alone must not make a node restart its
+counter at a value a peer already accepted.
 
 ---
 
