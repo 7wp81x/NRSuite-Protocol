@@ -316,25 +316,32 @@ retries reuse it so the Android app can deduplicate by `(node_id, seq)`.
 ### 10.1b Mesh Scan control packet
 
 `PKT_SCAN_CONTROL = 9` is an encrypted master-to-client packet used for
-master-coordinated same-channel mesh scans:
+master-coordinated mesh scans:
 
 ```text
 byte 0      start (1) / stop (0)
-byte 1      scan channel (1..13)
+byte 1      seed/current channel (1..13)
 byte 2..3   scan dwell ms (little-endian u16)
+byte 4      mode: 0 = same_channel, 1 = multi_channel
+byte 5..6   channel mask (little-endian u16; bit 0 = channel 1)
+byte 7..8   lease ms (little-endian u16)
 ```
 
 Master flow:
 
-1. app sends `MESH_SCAN_START`
-2. master broadcasts `PKT_SCAN_CONTROL` with the current/selected mesh channel
-3. master and clients briefly scan that channel and report AP observations as
-   `PKT_SENSOR_REPORT` with `kind = 3 (scan)`
-4. master forwards each report to Android as `mesh_sensor_report kind="scan"`
-5. `MESH_SCAN_STOP` clears the active scan control
+1. app sends `MESH_SCAN_START` with mode/channel/mask/dwell/lease
+2. master broadcasts `PKT_SCAN_CONTROL`
+3. same-channel mode: master and clients scan the current channel
+4. multi-channel mode: clients scan each selected channel sequentially; master
+   stays mesh-always
+5. observations arrive as `PKT_SENSOR_REPORT` with `kind = 3 (scan)`
+6. master forwards each report to Android as `mesh_sensor_report kind="scan"`
+7. `MESH_SCAN_STOP` clears the active scan control
 
-The first implementation is same-channel only. Clients stay on the mesh
-channel except for the short scan window.
+Multi-channel clients enter a short scan lease so normal master timeout and
+recovery hopping do not fire while they are off-channel. When the lease ends
+or scanning completes, clients restore the mesh channel and resume normal
+timers.
 
 ### 10.2 Channel switch ACK handshake (Phase 3B)
 
