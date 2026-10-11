@@ -313,6 +313,29 @@ Deauth observations are sent as `PKT_SENSOR_REPORT` with
 `kind = 2 (deauth)`. Each observation has a stable `seq` assigned when queued;
 retries reuse it so the Android app can deduplicate by `(node_id, seq)`.
 
+### 10.1b Mesh Scan control packet
+
+`PKT_SCAN_CONTROL = 9` is an encrypted master-to-client packet used for
+master-coordinated same-channel mesh scans:
+
+```text
+byte 0      start (1) / stop (0)
+byte 1      scan channel (1..13)
+byte 2..3   scan dwell ms (little-endian u16)
+```
+
+Master flow:
+
+1. app sends `MESH_SCAN_START`
+2. master broadcasts `PKT_SCAN_CONTROL` with the current/selected mesh channel
+3. clients briefly scan that channel and report AP observations as
+   `PKT_SENSOR_REPORT` with `kind = 3 (scan)`
+4. master forwards each report to Android as `mesh_sensor_report kind="scan"`
+5. `MESH_SCAN_STOP` clears the active scan control
+
+The first implementation is same-channel only. Clients stay on the mesh
+channel except for the short scan window.
+
 ### 10.2 Channel switch ACK handshake (Phase 3B)
 
 `PKT_CHANNEL_SWITCH` now carries a small payload:

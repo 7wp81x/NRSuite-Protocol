@@ -53,6 +53,18 @@ Common fields:
 | `target` | string | Target/client address; `FF:FF:FF:FF:FF:FF` for broadcast |
 | `seq` | number | Stable per-observation ID; retries reuse it for dedupe |
 
+`scan` fields (Mesh Scan):
+
+| Field | Type | Notes |
+|---|---|---|
+| `bssid` | string | Observed AP BSSID |
+| `ssid` | string | Observed SSID, may be empty for hidden APs |
+| `channel` | number | AP channel |
+| `rssi` | number | RSSI observed by the reporting node |
+| `auth_mode` | number | ESP-IDF `wifi_auth_mode_t` numeric value |
+| `wps` | boolean | WPS flag reported by the scan |
+| `seq` | number | Stable per-observation ID; retries reuse it for dedupe |
+
 Phase 3B also adds the encrypted internal ESP-NOW packets
 `PKT_DETECTOR_CONTROL = 6` for master-to-client start/stop control and
 `PKT_JOIN_ACK = 8` for JOIN acceptance. They are not USB events and are
