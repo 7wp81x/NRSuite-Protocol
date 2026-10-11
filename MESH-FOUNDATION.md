@@ -300,6 +300,10 @@ byte 3..4   mesh window ms (little-endian u16)
 byte 5..6   detector window ms (little-endian u16)
 byte 7..8   detector hop dwell ms (little-endian u16)
 byte 9..10  hop channel mask (little-endian u16; 0 = full 1..13 list)
+byte 11     target flags: bit 0 = BSSID filter present, bit 1 = client filter present
+byte 12..17 target BSSID (all zero when absent)
+byte 18..23 target client (all zero when absent)
+byte 24     minimum RSSI (signed int8; -127 = no threshold)
 ```
 
 Security and delivery rules:
