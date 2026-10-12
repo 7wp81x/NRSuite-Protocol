@@ -9,4 +9,5 @@ Event namespaces:
 - [Defense events](./defense.md)
 - [Portal events](./portal.md)
 - [BLE events](./ble.md)
+- [HID events](./hid.md)
 - [Mesh events](./mesh.md) - draft protocol 1.1
