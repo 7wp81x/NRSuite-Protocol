@@ -22,6 +22,12 @@
 | `PIN_RANGE_RESUME` | none | `{ok:true,state,...}` | Resumes a persisted paused/armed session |
 | `PIN_RANGE_CLEAR` | `{wordlist?:bool}` | `{ok:true,state,...}` | Clears session state; optionally removes the wordlist |
 
+> `standalone_native_hid` is one-shot and boot-armed like BadUSB. `PIN_RANGE_START`
+> validates and persists the session, then the device must be unplugged/re-plugged
+> to execute it. While the HID session runs there is no USB CDC command channel;
+> completion leaves the session persisted so it can be inspected/re-armed after
+> the next normal USB connection.
+>
 > `external_ch9329_realtime` is reserved/deferred. Current Android UI exposes
 > native HID only. Wordlists use `PIN_WORDLIST_*` and are stored on the device.
 > HID cannot confirm target success; sessions are supervised only.
