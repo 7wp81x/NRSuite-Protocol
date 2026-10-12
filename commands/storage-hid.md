@@ -24,9 +24,12 @@
 
 > `standalone_native_hid` is one-shot and boot-armed like BadUSB. `PIN_RANGE_START`
 > validates and persists the session, then the device must be unplugged/re-plugged
-> to execute it. While the HID session runs there is no USB CDC command channel;
-> completion leaves the session persisted so it can be inspected/re-armed after
-> the next normal USB connection.
+> to execute it. While the HID session runs there is no USB CDC command channel.
+> A mid-run unplug/replug returns to the normal USB device; it does not auto-resume.
+> When the run finishes (or errors), the firmware reboots back to the normal USB
+> CDC device so the app can inspect, re-arm, or clear the persisted session.
+> `auto_resume` only controls whether the next explicit re-arm continues from the
+> saved sequence (`true`) or restarts from the configured beginning (`false`).
 >
 > `external_ch9329_realtime` is reserved/deferred. Current Android UI exposes
 > native HID only. Wordlists use `PIN_WORDLIST_*` and are stored on the device.
