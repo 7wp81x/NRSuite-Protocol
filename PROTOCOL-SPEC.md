@@ -255,12 +255,14 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `wps` | WPS flag included in `scan_ap` |
 | `hidden_ap` | Hidden AP revealer |
 | `storage` | Mass storage/file operations |
+| `ld2450` | HLK-LD2450 mmWave radar parser and events |
 | `ble_hid` | BLE HID |
 | `ble_scan` | BLE scanner |
 | `ble_profile` | Read-only BLE GATT profiler |
 | `msc` | USB MSC mode |
 | `msc_read_chunk` | Chunked `MSC_READ` |
 | `badusb` | Native USB HID BadUSB |
+| `pin_bruteforce` | Native USB HID PIN range/wordlist tester |
 | `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
 | `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
 

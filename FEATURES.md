@@ -33,6 +33,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Deauth Locator | 📋 | RSSI-based direction/distance estimate; multi-node triangulation |
 | AirTag/Tracker Detector | 📋 | BLE "Find My"-style advert detection; cross-location persistence heuristic |
 | Client/Presence Detector | 📋 | Passive client-count via associated/probe-request MACs |
+| LD2450 mmWave Radar | 🚧 | HLK-LD2450 UART target parser, serial bring-up, Android radar module, and app protocol commands/events |
 | Unauthorized RFID Reader Detector | 📋 | Detect unattended/skimmer-style RF field polling nearby |
 | Jam Detector (Sub-GHz / 2.4GHz) | 📋 | Wideband noise-floor anomaly detection (detection only — see Legal notes) |
 
