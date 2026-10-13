@@ -21,6 +21,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | WPA Handshake Capture/Crack | ✅ | Offline dictionary cracking |
 | BLE Scan/Interaction | ✅ | Bluetooth LE device interaction |
 | BadUSB | ✅ | HID injection via USB |
+| PIN Bruteforce | ✅ | Native-HID range/wordlist tester; one-shot boot-arm like BadUSB; session persistence and events; CH9329 abandoned |
 | Credential Manager | ✅ | Local storage of harvested creds |
 
 ## 2. Defense Modules
