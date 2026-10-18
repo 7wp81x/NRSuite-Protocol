@@ -50,3 +50,14 @@ App and firmware releases each declare which spec version they implement. See th
 - [STATUS Response](./PROTOCOL-SPEC.md#status-response)
 - [Error Handling](./PROTOCOL-SPEC.md#error-handling)
 - [Planned Extensions](./PROTOCOL-SPEC.md#planned-extensions-future-minor-versions)
+
+---
+
+## License
+
+[GNU General Public License v3.0 or later](./LICENSE)
+
+This protocol specification and its documentation are free software: you may
+redistribute and/or modify them under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
