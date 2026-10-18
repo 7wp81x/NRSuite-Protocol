@@ -15,11 +15,10 @@
 | `SET_FILE_CHUNK` | `{filename,data:"<base64>",last}` | `{ok:true}` | Chunked file upload for DuckyScripts |
 | `START_BADUSB` | `{filename,msc}` | `{ok:true}` | Arms native USB HID payload |
 | `PIN_WORDLIST_RESET` | none | `{ok:true}` | Starts/clears a PIN wordlist upload buffer |
-| `PIN_WORDLIST_CHUNK` | `{data:"<base64>",last}` | `{ok:true}` | Uploads PIN wordlist data; max 1000 lines, 16 KB total, 64 chars per line |
-| `PIN_RANGE_START` | `{mode:"standalone_native_hid",source:"range"|"wordlist",pin_length,start,end,charset?,custom_chars?,prefix?,suffix?,timeout_ms?,attempts_before_cooldown?,cooldown_ms?,inter_attempt_ms?,auto_resume?,session_key?,wordlist_file?}` | `{ok:true,state,...}` | Starts/arms a supervised HID PIN session |
+| `PIN_WORDLIST_CHUNK` | `{data:"<base64>",offset,checksum,last}` | `{ok:true}` | Uploads PIN wordlist data; max 1000 lines, 16 KB total, 64 chars per line |
+| `PIN_RANGE_START` | `{mode:"standalone_native_hid",source:"range"|"wordlist",pin_length,start,end,timeout_ms?,max_attempts?,persist_every?,attempts_before_cooldown?,cooldown_ms?,inter_attempt_ms?,typing_delay_ms?,start_delay_ms?,auto_resume?,session_key?,wordlist_file?}` | `{ok:true,state,...}` | Starts/arms a supervised HID PIN session; range mode is digits only |
 | `PIN_RANGE_STOP` | none | `{ok:true,state,...}` | Pauses the active session and releases HID keys |
 | `PIN_RANGE_STATUS` | none | `{ok:true,state,...}` | Returns the persisted/live session state |
-| `PIN_RANGE_RESUME` | none | `{ok:true,state,...}` | Resumes a persisted paused/armed session |
 | `PIN_RANGE_CLEAR` | `{wordlist?:bool}` | `{ok:true,state,...}` | Clears session state; optionally removes the wordlist |
 
 > `standalone_native_hid` is one-shot and boot-armed like BadUSB. `PIN_RANGE_START`
@@ -30,11 +29,14 @@
 > CDC device so the app can inspect, re-arm, or clear the persisted session.
 > `auto_resume` only controls whether the next explicit re-arm continues from the
 > saved sequence (`true`) or restarts from the configured beginning (`false`).
+> `max_attempts` is a hard safety cap; `0` means no additional cap. The session
+> stops with `stop_reason:"max_attempts"` when reached. `persist_every` controls
+> how often NVS progress is written.
 >
 > Timing: `timeout_ms` waits after each Enter; `inter_attempt_ms` is an extra
 > delay between attempts. After `attempts_before_cooldown` attempts, a custom
 > `cooldown_ms` pause is inserted and the cycle counter resets. Set
-> `attempts_before_cooldown` to `0` to disable the periodic cooldown. `attempts_before_timeout` remains accepted as a legacy alias.
+> `attempts_before_cooldown` to `0` to disable the periodic cooldown. `typing_delay_ms` adds a per-character HID delay for slow targets. `start_delay_ms` is a settle delay before the first PIN after boot/re-plug, giving the target host time to enumerate the HID interface and focus its PIN field; default `1500`. `attempts_before_timeout` remains accepted as a legacy alias for backward compatibility.
 >
 > Wordlists use `PIN_WORDLIST_*` and are stored on the device.
 > HID cannot confirm target success; sessions are supervised only.

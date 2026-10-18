@@ -4,7 +4,7 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps` | Emitted by `SCAN_WIFI` |
+| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `band` | Emitted by `SCAN_WIFI`; `band` is `2g` or `5g` |
 | `deauth_stats` | `status`, `bssid`, `client`, `channel`, `count`, `interval_ms`, `reason`, `sent_frames` | After `DEAUTH` |
 | `client_detected` | `client`, `bssid?`, `ssid?`, `subtype`, `rssi`, `channel` | Client detector |
 | `client_associated` | `client`, `bssid`, `rssi` | Portal association monitor |

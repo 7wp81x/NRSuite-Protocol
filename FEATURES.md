@@ -12,16 +12,18 @@ This document lists all current and planned features across the NRSuite ecosyste
 
 | Feature | Status | Notes |
 |---|---|---|
-| Wi-Fi Scan | ✅ | Passive AP/channel discovery |
+| Wi-Fi Scan | ✅ | Active AP/channel discovery; capability-driven AUTO 2.4+5 GHz on C5, regulatory country/channel mask via `STATUS`, 2.4 GHz fallback elsewhere |
 | Beacon Injection | ✅ | Beacon frame injection/spoofing |
 | Deauthentication | ✅ | Deauth frame injection |
 | Evil Twin | ✅ | Rogue AP with captive portal |
 | Captive Portal | ✅ | Credential harvesting UI |
-| Packet Sniffer | ✅ | Monitor-mode capture, pcap export |
+| Packet Sniffer | ✅ | Monitor-mode capture, pcap export; per-module Auto/2.4/5 GHz hop selection and target-channel-aware fixed capture |
 | WPA Handshake Capture/Crack | ✅ | Offline dictionary cracking |
+| Nrugochi | 🚧 | Pwnagotchi-style RECON/INTERACT loop: channel-density ordering, multi-AP authorized deauth with frame telemetry, all-EAPOL/all-beacon capture, per-BSSID `HS_<BSSID>.pcap` output, mood UI, session persistence. Advertised as `nrugochi`. PMKID excluded. Hardware validation pending. |
 | BLE Scan/Interaction | ✅ | Bluetooth LE device interaction |
 | BadUSB | ✅ | HID injection via USB |
-| PIN Bruteforce | ✅ | Native-HID range/wordlist tester; one-shot boot-arm like BadUSB; session persistence and events; CH9329 abandoned |
+| PIN Bruteforce | ✅ | Native-HID range/wordlist tester; one-shot boot-arm like BadUSB; max-attempt safety cap, estimated total/progress, configurable typing/start delays, session persistence and events; native HID only |
+| BLE HID PIN Bruteforce | ✅ | Hidden/experimental: BLE HID keyboard transport with live CDC controls retained for future unlocked-host and mesh HID reuse; lock-screen use is unsupported |
 | Credential Manager | ✅ | Local storage of harvested creds |
 
 ## 2. Defense Modules
