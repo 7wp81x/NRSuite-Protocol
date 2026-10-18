@@ -63,8 +63,10 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `DEAUTH` | `{bssid,client,band?:"auto",channel,count,reason,deauth_interval_ms}` | `{ok:true}` | `deauth_stats` |
-| `DEAUTH_CAPTURE` | Same as `DEAUTH` | `{ok:true}` | `deauth_stats`, then starts EAPOL capture |
+| `DEAUTH` | `{bssid,client,band?:"auto",channel,mode?:"burst"|"loop",count,duration,reason,deauth_interval_ms}` | Burst: final counts. Loop: `{ok:true,active:true,mode:"loop",duration,interval_ms}` | `deauth_stats` |
+| `DEAUTH_STOP` | none | `{ok:true,sent_frames,failed_frames}` | Stops an active deauth loop |
+| `DEAUTH_BURST` | `{bssid,client,band?:"auto",channel,count,reason,deauth_interval_ms}` | `{ok:true,mode:"burst",requested_frames,sent_frames,failed_frames}` | Capture-preserving burst; does not stop an active sniffer |
+| `DEAUTH_CAPTURE` | Same as `DEAUTH` burst mode | `{ok:true}` | `deauth_stats`, then starts EAPOL capture |
 | `DEAUTH_CHANNEL_CAPTURE` | `{band,channel,targets:[{bssid}],count,deauth_interval_ms,reason,all_beacons}` | `{ok:true,requested_frames,sent_frames,failed_frames,targets,channel,band}` | starts all-EAPOL/all-beacon capture after multi-AP deauth |
 | `START_BEACON` | `{ssids:"SSID1\nSSID2",band?:"auto",channel,interval_ms,random_bssid,hidden}` | `{ok:true,ssids,channel}` | |
 | `STOP_BEACON` | none | `{ok:true,sent,ssids}` | |
@@ -79,5 +81,21 @@ PMKID capture and Pwngrid advertising are out of scope.
 > they do not silently change channels. Evil Twin must use the target AP channel
 > for correctness, and Captive Portal keeps the same no-surprise policy until an
 > explicit auto-fallback option is added.
+
+### Deauth modes
+
+`mode` makes count and duration mutually exclusive:
+
+- `burst` uses `count` and sends a finite number of frames.
+- `loop` uses `duration` in seconds and ignores `count`.
+  - `duration:0` runs until `DEAUTH_STOP` or another radio command stops it.
+  - `DEAUTH_STOP` is safe to call while the loop task is running.
+  - The firmware emits periodic `deauth_stats` events with `status:"running"`
+    and a final event with `status:"finished"`.
+
+`DEAUTH_BURST` is the capture-assist variant. Android starts the sniffer first,
+then sends `DEAUTH_BURST` immediately and retries it every configured interval
+until the capture stops or a handshake is found. Unlike `DEAUTH`, it does not
+call the firmware radio-idle path and therefore does not stop the sniffer.
 
 > Core transport and framing: [PROTOCOL-SPEC.md](../PROTOCOL-SPEC.md)
