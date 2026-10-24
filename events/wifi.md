@@ -4,8 +4,8 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps` | Emitted by `SCAN_WIFI` |
-| `deauth_stats` | `status`, `bssid`, `client`, `channel`, `count`, `interval_ms`, `reason`, `sent_frames` | After `DEAUTH` |
+| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `band` | Emitted by `SCAN_WIFI`; `band` is `2g` or `5g` |
+| `deauth_stats` | `status`, `mode`, `bssid?`, `client?`, `channel?`, `count?`, `requested_frames?`, `sent_frames`, `failed_frames`, `duration_s?`, `interval_ms`, `elapsed_ms?`, `stopped?`, `reason?` | Burst completion, loop progress (`status:"running"`), or loop completion (`status:"finished"`) |
 | `client_detected` | `client`, `bssid?`, `ssid?`, `subtype`, `rssi`, `channel` | Client detector |
 | `client_associated` | `client`, `bssid`, `rssi` | Portal association monitor |
 | `hidden_ap` | `bssid`, `channel`, `rssi`, `uptime_ms`, `subtype?` | Hidden AP observed |

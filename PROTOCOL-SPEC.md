@@ -187,6 +187,9 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
   "proto_minor": 0,
   "fw": "1.0.0-beta.2",
   "device_id": "NR1A2B3C4D",
+  "country": "US",
+  "allowed_2ghz_channels": [1,2,3,4,5,6,7,8,9,10,11],
+  "allowed_5ghz_channels": [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],
   "features": ["wifi", "sniff", "deauth", "beacon", "portal"],
   "sniffing": false,
   "client_detecting": false,
@@ -209,6 +212,9 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds will report `1` |
 | `fw` | string | Firmware version |
 | `device_id` | string | Persistent `NRxxxxxxxx` ID from NVS (10 characters total) |
+| `country` | string | Active Wi-Fi regulatory country, e.g. `01`, `US`, `GB` |
+| `allowed_2ghz_channels` | int[] | 2.4 GHz channels currently permitted by the active regulatory country |
+| `allowed_5ghz_channels` | int[] | 5 GHz channels currently permitted; empty when 5 GHz is unavailable |
 | `features` | string[] | Compiled feature flags |
 | `sniffing` | bool | Sniffer active |
 | `client_detecting` | bool | Client detector active |
@@ -253,14 +259,19 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `html_diag` | HTML upload diagnostic events |
 | `stop_all` | `STOP_ALL` command |
 | `wps` | WPS flag included in `scan_ap` |
+| `wifi_2ghz` | 2.4 GHz Wi-Fi band is supported |
+| `wifi_5ghz` | 5 GHz Wi-Fi band is enabled in this firmware build (advertised by C5 builds) |
 | `hidden_ap` | Hidden AP revealer |
 | `storage` | Mass storage/file operations |
+| `ld2450` | HLK-LD2450 mmWave radar parser and events |
 | `ble_hid` | BLE HID |
 | `ble_scan` | BLE scanner |
 | `ble_profile` | Read-only BLE GATT profiler |
+| `ble_pin_bruteforce` | BLE HID PIN range/wordlist tester with live CDC control |
 | `msc` | USB MSC mode |
 | `msc_read_chunk` | Chunked `MSC_READ` |
 | `badusb` | Native USB HID BadUSB |
+| `pin_bruteforce` | Native USB HID PIN range/wordlist tester |
 | `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
 | `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
 

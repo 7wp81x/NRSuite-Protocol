@@ -12,15 +12,18 @@ This document lists all current and planned features across the NRSuite ecosyste
 
 | Feature | Status | Notes |
 |---|---|---|
-| Wi-Fi Scan | ✅ | Passive AP/channel discovery |
+| Wi-Fi Scan | ✅ | Active AP/channel discovery; capability-driven AUTO 2.4+5 GHz on C5, regulatory country/channel mask via `STATUS`, 2.4 GHz fallback elsewhere |
 | Beacon Injection | ✅ | Beacon frame injection/spoofing |
 | Deauthentication | ✅ | Deauth frame injection |
 | Evil Twin | ✅ | Rogue AP with captive portal |
 | Captive Portal | ✅ | Credential harvesting UI |
-| Packet Sniffer | ✅ | Monitor-mode capture, pcap export |
+| Packet Sniffer | ✅ | Monitor-mode capture, pcap export; per-module Auto/2.4/5 GHz hop selection and target-channel-aware fixed capture |
 | WPA Handshake Capture/Crack | ✅ | Offline dictionary cracking |
+| Nrugochi | 🚧 | Pwnagotchi-style RECON/INTERACT loop: channel-density ordering, multi-AP authorized deauth with frame telemetry, all-EAPOL/all-beacon capture, per-BSSID `HS_<BSSID>.pcap` output, mood UI, session persistence. Advertised as `nrugochi`. PMKID excluded. Hardware validation pending. |
 | BLE Scan/Interaction | ✅ | Bluetooth LE device interaction |
 | BadUSB | ✅ | HID injection via USB |
+| PIN Bruteforce | ✅ | Native-HID range/wordlist tester; one-shot boot-arm like BadUSB; max-attempt safety cap, estimated total/progress, configurable typing/start delays, session persistence and events; native HID only |
+| BLE HID PIN Bruteforce | ✅ | Hidden/experimental: BLE HID keyboard transport with live CDC controls retained for future unlocked-host and mesh HID reuse; lock-screen use is unsupported |
 | Credential Manager | ✅ | Local storage of harvested creds |
 
 ## 2. Defense Modules
@@ -32,6 +35,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Deauth Locator | 📋 | RSSI-based direction/distance estimate; multi-node triangulation |
 | AirTag/Tracker Detector | 📋 | BLE "Find My"-style advert detection; cross-location persistence heuristic |
 | Client/Presence Detector | 📋 | Passive client-count via associated/probe-request MACs |
+| LD2450 mmWave Radar | 🚧 | HLK-LD2450 UART target parser, serial bring-up, Android radar module, and app protocol commands/events |
 | Unauthorized RFID Reader Detector | 📋 | Detect unattended/skimmer-style RF field polling nearby |
 | Jam Detector (Sub-GHz / 2.4GHz) | 📋 | Wideband noise-floor anomaly detection (detection only — see Legal notes) |
 
@@ -95,9 +99,10 @@ This document lists all current and planned features across the NRSuite ecosyste
 | **nRF24** — RC/Device Scanner | 📋 | Detect nearby nRF24-based peripherals |
 | **nRF24** — MouseJack-style Analysis | 📋 | Detection/analysis of known-vulnerable wireless HID dongles |
 | **nRF24** — Packet Sniffer | 📋 | Promiscuous capture for research |
-| **RFID/NFC** — Read (125kHz + 13.56MHz) | 📋 | RC522 + LF reader modules |
-| **RFID/NFC** — Emulate | 📋 | Replay previously-read tag |
-| **RFID/NFC** — Write/Clone | 📋 | To blank/magic tags |
+| **RFID/NFC** — PN532 13.56 MHz read-only | 🚧 | I2C PN532, configurable SDA/SCL in NVS, ISO14443A UID/ATQA/SAK and tag-family estimate; writes/locks/emulation deferred |
+| **RFID/NFC** — 125 kHz read | 📋 | Separate LF reader module required; PN532 is 13.56 MHz only |
+| **RFID/NFC** — Emulate | 📋 | Replay previously-read tag; deferred until read-only validation passes |
+| **RFID/NFC** — Write/Clone | 📋 | To blank/magic tags; deferred |
 | **RFID/NFC** — Access Control Analyzer | 📋 | Identify tag type + known weaknesses (e.g., MIFARE Classic) |
 
 ## Explicitly Out of Scope
