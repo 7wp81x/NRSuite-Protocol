@@ -99,9 +99,10 @@ This document lists all current and planned features across the NRSuite ecosyste
 | **nRF24** — RC/Device Scanner | 📋 | Detect nearby nRF24-based peripherals |
 | **nRF24** — MouseJack-style Analysis | 📋 | Detection/analysis of known-vulnerable wireless HID dongles |
 | **nRF24** — Packet Sniffer | 📋 | Promiscuous capture for research |
-| **RFID/NFC** — Read (125kHz + 13.56MHz) | 📋 | RC522 + LF reader modules |
-| **RFID/NFC** — Emulate | 📋 | Replay previously-read tag |
-| **RFID/NFC** — Write/Clone | 📋 | To blank/magic tags |
+| **RFID/NFC** — PN532 13.56 MHz read-only | 🚧 | I2C PN532, configurable SDA/SCL in NVS, ISO14443A UID/ATQA/SAK and tag-family estimate; writes/locks/emulation deferred |
+| **RFID/NFC** — 125 kHz read | 📋 | Separate LF reader module required; PN532 is 13.56 MHz only |
+| **RFID/NFC** — Emulate | 📋 | Replay previously-read tag; deferred until read-only validation passes |
+| **RFID/NFC** — Write/Clone | 📋 | To blank/magic tags; deferred |
 | **RFID/NFC** — Access Control Analyzer | 📋 | Identify tag type + known weaknesses (e.g., MIFARE Classic) |
 
 ## Explicitly Out of Scope

@@ -11,4 +11,5 @@ Event namespaces:
 - [BLE events](./ble.md)
 - [HID events](./hid.md)
 - [Sensor events](./sensors.md)
+- [NFC / RFID events](./rfid.md)
 - [Mesh events](./mesh.md) - draft protocol 1.1
