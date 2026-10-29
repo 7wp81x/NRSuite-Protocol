@@ -99,3 +99,87 @@ until the capture stops or a handshake is found. Unlike `DEAUTH`, it does not
 call the firmware radio-idle path and therefore does not stop the sniffer.
 
 > Core transport and framing: [PROTOCOL-SPEC.md](../PROTOCOL-SPEC.md)
+
+
+## WPS Pixie Dust
+
+The live WPS Pixie Dust flow is PIN-first and uses the same registrar transaction
+for either a successful PSK recovery or capture of Pixie Dust material after a
+wrong-PIN rejection. The app owns PIN generation, the BSSID->PIN database, and
+the offline Pixiewps search. Firmware executes one PIN attempt per command.
+
+`STATUS.features` advertises `wps_pixie` on builds where raw WPS registrar
+injection is supported (currently ESP32-S3 and ESP32-C5).
+
+| Command | Args | Response | Events |
+|---|---|---|---|
+| `WPS_PIXIE_ATTEMPT` | `{bssid,ssid,channel,band,pin,pin_source,capture_only?,reuse_mac?,run_id?}` | `{ok:true,run_id}` | `wps_pixie_progress`, `wps_pixie_wrong_pin`, `wps_pixie_psk`, `wps_pixie_error` |
+| `WPS_PIXIE_CONTINUE` | `{run_id,pin,pin_source?}` | `{ok:true}` | `wps_pixie_progress`, `wps_pixie_psk`, `wps_pixie_error` |
+| `WPS_PIXIE_STOP` | `{run_id?}` | `{ok:true}` | `wps_pixie_error` with `code:"stopped"` |
+
+`pin_source` is one of `stored`, `generated`, `pixie`, or `manual`.
+`capture_only` defaults to `false`. `reuse_mac` defaults to `false`; set it
+for the corrected-PIN retry so the same randomized STA MAC is reused within
+the same target campaign. This avoids leaving the AP's WPS state machine tied
+to the previous capture attempt's MAC.
+
+When `capture_only:true`, firmware captures and validates M1/M2/M3, emits the
+complete M1/M2/M3/AuthKey material via `wps_pixie_wrong_pin` with
+`m3_only:true`, and keeps the existing WPS association/session alive without
+sending M4. This avoids both a wrong-PIN validation and a risky AP WPS-session
+restart. After the offline crack, the app sends `WPS_PIXIE_CONTINUE` with the
+same `run_id` and recovered PIN; firmware builds M4 from the retained M3 state
+and continues M5-M8 on the same session.
+
+With `capture_only:false`, a valid PIN runs M1 through M8. If the AP rejects the
+PIN after M4, firmware emits `wps_pixie_wrong_pin` with `m3_only:false` and the
+complete material so the app can run the offline cracker and retry once.
+
+WPS lock and timeout handling:
+
+- M2D, a NACK before M3, or configuration error `15` means the AP may be locked.
+- The app must not automatically retry after a lockout event.
+- Show a cooldown warning and let the user retry later.
+- Before association, firmware passively checks fresh beacon/probe responses
+  for the AP Setup Locked attribute (`0x1057`). A stale/absent attribute is not
+  treated as proof that the AP is unlocked.
+- If the lock flag is set, firmware waits up to 30 seconds for it to clear and
+  emits `code:"wps_locked"` if it does not.
+- M1 must arrive within 10 seconds after association/EAPOL-Start, otherwise the
+  firmware emits `wps_pixie_error` with `code:"m1_timeout"`.
+- M3 must arrive within 10 seconds after M2, otherwise the firmware emits
+  `code:"m3_timeout"`.
+- The overall attempt timeout is 35 seconds and emits `code:"timeout"`.
+- The app must not automatically retry after an M1/M3/overall timeout. The user
+  can start a fresh attempt after the radio has settled.
+- A new `WPS_PIXIE_ATTEMPT` tears down the previous raw STA/SoftAP state before
+  re-arming the registrar path.
+- After the AP lock preflight and before raw authentication, firmware sends a
+  raw Deauthentication and Disassociation using the campaign STA MAC to clear
+  any stale AP association/WPS state from a prior attempt.
+- The hidden helper SoftAP uses a randomized `NRSuite-WPS-xxxxxx` SSID and a
+  random WPA2 password with zero intended clients. A hidden SoftAP is still
+  detectable as a BSSID; it is not an invisible AP.
+- Duplicate WSC requests replay the cached authenticated reply, including when
+  the AP changes the EAP identifier. Fragmented EAP-WSC requests are reassembled
+  and acknowledged with Frag-ACK.
+- After M8, firmware waits for the enrollee's WSC_Done and replies with a
+  registrar WSC_ACK containing Version, Message Type, Enrollee Nonce, Registrar
+  Nonce, and the WFA extension. If WSC_Done is lost, firmware finalizes from the
+  already validated M7 credentials after a 5-second grace period.
+
+
+## Wi-Fi automation extensions
+
+Implemented or planned extensions are tracked in
+`../WIFI-AUTOMATION-ROADMAP.md`.
+
+- Wifite-style Auto Audit is planned as an app-side orchestrator over existing
+  `SCAN_WIFI`, `DEAUTH_BURST`/`DEAUTH`, `START_SNIFF`, `WPS_PIXIE_*`,
+  `START_PORTAL`, and `STOP_ALL` commands.
+- `deauth_stats` now includes `elapsed_ms` and `pps` telemetry.
+- The Probe Request Monitor aggregates existing `client_detected` events with
+  `subtype:"probe_request"`; no new command is required.
+- PMKID capture commands/events are not defined yet.
+- Captive Portal / Evil Twin template management reuses the existing
+  `RESET_HTML` and `SET_HTML_CHUNK` flow.
