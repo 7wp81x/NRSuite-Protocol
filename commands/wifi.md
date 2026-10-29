@@ -105,7 +105,9 @@ call the firmware radio-idle path and therefore does not stop the sniffer.
 
 `WPS_LOCK_SCAN` performs a passive WPS AP discovery scan. It listens for
 beacons/probe responses on the selected band, parses each AP's WPS IE, and emits
-one `wps_lock_ap` event per WPS-enabled AP. It does not attempt a WPS PIN.
+one `wps_lock_ap` event per WPS-enabled AP. It does not attempt a WPS PIN or send
+WPS M1-M4 messages. After the passive pass it may run a normal non-WPS active
+scan only to resolve missing SSID names for the captured BSSIDs.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
