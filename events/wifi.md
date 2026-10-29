@@ -16,6 +16,12 @@ Every event includes `type` plus event-specific fields.
 > Core transport and framing: [PROTOCOL-SPEC.md](../PROTOCOL-SPEC.md)
 
 
+## WPS Lock Detector events
+
+| Event type | Fields | Notes |
+|---|---|---|
+| `wps_lock_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `wps_version`, `config_methods`, `selected_registrar`, `last_seen_ms` | Emitted by `WPS_LOCK_SCAN` for each observed WPS-enabled AP. `lock_reported:false` means the AP did not advertise the WPS AP Setup Locked attribute and should be shown as likely unlocked rather than confirmed unlocked. |
+
 ## WPS Pixie Dust events
 
 | Event type | Fields | Notes |

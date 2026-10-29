@@ -101,6 +101,18 @@ call the firmware radio-idle path and therefore does not stop the sniffer.
 > Core transport and framing: [PROTOCOL-SPEC.md](../PROTOCOL-SPEC.md)
 
 
+## WPS Lock Detector
+
+`WPS_LOCK_SCAN` performs a passive WPS AP discovery scan. It listens for
+beacons/probe responses on the selected band, parses each AP's WPS IE, and emits
+one `wps_lock_ap` event per WPS-enabled AP. It does not attempt a WPS PIN.
+
+| Command | Args | Response | Events |
+|---|---|---|---|
+| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120}` | `{ok:true,count}` | `wps_lock_ap` |
+
+`STATUS.features` advertises `wps_lock_detect` when this scan is available.
+
 ## WPS Pixie Dust
 
 The live WPS Pixie Dust flow is PIN-first and uses the same registrar transaction
