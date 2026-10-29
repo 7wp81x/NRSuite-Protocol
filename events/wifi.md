@@ -42,7 +42,7 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `wps_attempt_session` | `state`, `session_id`, `bssid`, `client`, `ssid`, `channel`, `rssi`, `stage`, `message_type`, `frames`, `first_seen_ms`, `last_seen_ms`, `duration_ms` | `state` is `started` or `progress`. `stage` is one of `M1`..`M8`, `M2D`, `ACK`, `NACK`, or `DONE`. `ssid` is filled when firmware has observed a matching beacon/probe response. |
+| `wps_attempt_session` | `state`, `session_id`, `bssid`, `client`, `ssid`, `channel`, `rssi`, `stage`, `message_type`, `frames`, `first_seen_ms`, `last_seen_ms`, `duration_ms` | `state` is `started` or `progress`. `stage` is one of `Identity`, `M1`..`M8`, `M2D`, `ACK`, `NACK`, or `DONE`. `ssid` is filled when firmware has observed a matching beacon/probe response. |
 
 This event indicates observed WPS protocol activity, not proof of malicious
 intent. Android may add source-MAC vendor metadata and a Low/Medium/High risk
