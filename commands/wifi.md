@@ -195,3 +195,20 @@ Implemented or planned extensions are tracked in
 - PMKID capture commands/events are not defined yet.
 - Captive Portal / Evil Twin template management reuses the existing
   `RESET_HTML` and `SET_HTML_CHUNK` flow.
+
+## WPS Attempt Detector
+
+The WPS Attempt Detector passively monitors 802.11 data frames for EAP-WSC
+messages. It does not transmit or attempt WPS authentication. Firmware tracks
+sessions by target BSSID + source client MAC and emits compact progress events
+for Android-side vendor lookup and risk scoring.
+
+| Command | Args | Response | Events |
+|---|---|---|---|
+| `WPS_ATTEMPT_DETECT_START` | `{mode?:"hop"|"fixed",channel?,"band?:"auto"|"2g"|"5g",interval_ms?:300}` | `{ok:true,active,mode,channel,hopping,interval_ms}` | `wps_attempt_session` |
+| `WPS_ATTEMPT_DETECT_STOP` | none | `{ok:true,sessions,frames}` | |
+| `WPS_ATTEMPT_DETECT_STATUS` | none | `{ok:true,active,channel,hopping,sessions,frames}` | |
+
+`STATUS.features` advertises `wps_attempt_detect`. A fixed-channel start validates
+the channel against the active regulatory mask. Hopping mode follows allowed
+2.4 GHz channels and includes 5 GHz where supported.

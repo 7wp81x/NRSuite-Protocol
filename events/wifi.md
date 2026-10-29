@@ -37,3 +37,13 @@ Every event includes `type` plus event-specific fields.
 - `deauth_stats` includes `elapsed_ms` and `pps` alongside sent/failed counters.
 - Probe Request Monitor aggregates `client_detected` events with
   `subtype:"probe_request"` in the app; no new firmware event is required.
+
+## WPS Attempt Detector events
+
+| Event type | Fields | Notes |
+|---|---|---|
+| `wps_attempt_session` | `state`, `session_id`, `bssid`, `client`, `ssid`, `channel`, `rssi`, `stage`, `message_type`, `frames`, `first_seen_ms`, `last_seen_ms`, `duration_ms` | `state` is `started` or `progress`. `stage` is one of `M1`..`M8`, `M2D`, `ACK`, `NACK`, or `DONE`. `ssid` is filled when firmware has observed a matching beacon/probe response. |
+
+This event indicates observed WPS protocol activity, not proof of malicious
+intent. Android may add source-MAC vendor metadata and a Low/Medium/High risk
+label using session frequency and target/source diversity.
