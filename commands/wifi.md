@@ -205,10 +205,13 @@ for Android-side vendor lookup and risk scoring.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `WPS_ATTEMPT_DETECT_START` | `{mode?:"hop"|"fixed",channel?,"band?:"auto"|"2g"|"5g",interval_ms?:300}` | `{ok:true,active,mode,channel,hopping,interval_ms}` | `wps_attempt_session` |
+| `WPS_ATTEMPT_DETECT_START` | `{mode?:"hop"|"fixed",band?:"auto"|"2g"|"5g",channels?:[int],targets?:[bssid],interval_ms?:300}` | `{ok:true,active,hopping,channel,channels,targets,interval_ms}` | `wps_attempt_session` |
 | `WPS_ATTEMPT_DETECT_STOP` | none | `{ok:true,sessions,frames}` | |
 | `WPS_ATTEMPT_DETECT_STATUS` | none | `{ok:true,active,channel,hopping,sessions,frames}` | |
 
-`STATUS.features` advertises `wps_attempt_detect`. A fixed-channel start validates
-the channel against the active regulatory mask. Hopping mode follows allowed
-2.4 GHz channels and includes 5 GHz where supported.
+`STATUS.features` advertises `wps_attempt_detect`.
+
+- `targets` limits emitted attempts to the listed BSSIDs. Omit it to monitor all observed WPS attempts.
+- `channels` restricts the monitor to those channels. One channel gives fixed monitoring; multiple channels hop only across that set.
+- Omitting `channels` uses the allowed band channels: 2.4 GHz, or 2.4/5 GHz when the board supports 5 GHz and `band:"auto"`.
+- Every requested channel is validated against the active regulatory mask.
