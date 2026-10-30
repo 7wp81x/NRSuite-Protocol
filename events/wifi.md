@@ -5,7 +5,7 @@ Every event includes `type` plus event-specific fields.
 | Event type | Fields | Notes |
 |---|---|---|
 | `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `band` | Emitted by `SCAN_WIFI`; `band` is `2g` or `5g` |
-| `deauth_stats` | `status`, `mode`, `bssid?`, `client?`, `channel?`, `count?`, `requested_frames?`, `sent_frames`, `failed_frames`, `duration_s?`, `interval_ms`, `elapsed_ms`, `pps`, `stopped?`, `reason?` | Burst completion, loop progress (`status:"running"`), or loop completion (`status:"finished"`) |
+| `deauth_stats` | `status`, `mode`, `bssid?`, `client?`, `channel?`, `target_bssid?`, `target_count?`, `count?`, `requested_frames?`, `sent_frames`, `failed_frames`, `duration_s?`, `interval_ms`, `elapsed_ms`, `pps`, `stopped?`, `reason?`, `targets?` | Burst completion, loop progress (`status:"running"`), or loop completion (`status:"finished"`). `mode:"multi"` includes aggregate and per-target `{bssid,channel,requested_frames,sent_frames,failed_frames}` counters. |
 | `client_detected` | `client`, `bssid?`, `ssid?`, `subtype`, `rssi`, `channel` | Client detector |
 | `client_associated` | `client`, `bssid`, `rssi` | Portal association monitor |
 | `hidden_ap` | `bssid`, `channel`, `rssi`, `uptime_ms`, `subtype?` | Hidden AP observed |
@@ -35,6 +35,8 @@ Every event includes `type` plus event-specific fields.
 ## Implemented automation consumers
 
 - `deauth_stats` includes `elapsed_ms` and `pps` alongside sent/failed counters.
+- `mode:"multi"` events identify the current `channel`/`target_bssid` and carry
+  a `targets` array with per-target counters.
 - Probe Request Monitor aggregates `client_detected` events with
   `subtype:"probe_request"` in the app; no new firmware event is required.
 

@@ -252,6 +252,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `sniff` | Packet sniffer |
 | `client_detect` | Client/presence detector |
 | `deauth` | Deauth injection |
+| `deauth_multi` | Firmware-native multi-target deauth with per-target channel scheduling |
 | `deauth_detect` | Deauth detector |
 | `beacon` | Beacon spam |
 | `portal` | Captive portal / Evil Twin AP |

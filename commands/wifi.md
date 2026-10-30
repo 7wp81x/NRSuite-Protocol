@@ -72,7 +72,8 @@ PMKID capture and Pwngrid advertising are out of scope.
 | Command | Args | Response | Events |
 |---|---|---|---|
 | `DEAUTH` | `{bssid,client,band?:"auto",channel,mode?:"burst"|"loop",count,duration,reason,deauth_interval_ms}` | Burst: final counts. Loop: `{ok:true,active:true,mode:"loop",duration,interval_ms}` | `deauth_stats` |
-| `DEAUTH_STOP` | none | `{ok:true,sent_frames,failed_frames}` | Stops an active deauth loop |
+| `DEAUTH_STOP` | none | `{ok:true,mode,sent_frames,failed_frames,targets?}` | Stops an active single- or multi-target deauth loop |
+| `DEAUTH_MULTI` | `{targets:[{bssid,channel}],client,mode?:"burst"|"loop",count,duration,interval_ms,reason}` | Burst: final aggregate/per-target counts. Loop: `{ok:true,active:true,mode:"multi",targets,...}` | `deauth_stats` with `mode:"multi"` |
 | `DEAUTH_BURST` | `{bssid,client,band?:"auto",channel,count,reason,deauth_interval_ms}` | `{ok:true,mode:"burst",requested_frames,sent_frames,failed_frames}` | Capture-preserving burst; does not stop an active sniffer |
 | `DEAUTH_CAPTURE` | Same as `DEAUTH` burst mode | `{ok:true}` | `deauth_stats`, then starts EAPOL capture |
 | `DEAUTH_CHANNEL_CAPTURE` | `{band,channel,targets:[{bssid}],count,deauth_interval_ms,reason,all_beacons}` | `{ok:true,requested_frames,sent_frames,failed_frames,targets,channel,band}` | starts all-EAPOL/all-beacon capture after multi-AP deauth |
@@ -105,6 +106,54 @@ PMKID capture and Pwngrid advertising are out of scope.
 then sends `DEAUTH_BURST` immediately and retries it every configured interval
 until the capture stops or a handshake is found. Unlike `DEAUTH`, it does not
 call the firmware radio-idle path and therefore does not stop the sniffer.
+
+### Firmware-native multi-target deauth
+
+`DEAUTH_MULTI` keeps the target/channel schedule in firmware and supports up to
+32 targets. Each target is specified as `{bssid,channel}`. The command:
+
+- validates every BSSID and channel, including the active regulatory mask;
+- deduplicates/rejects repeated BSSIDs;
+- switches channel per target;
+- accepts `interval_ms` (canonical) and `deauth_interval_ms` (compatibility
+  alias);
+- supports burst mode and loop mode;
+- treats `duration:0` in loop mode as run-until-`DEAUTH_STOP`;
+- reports `requested_frames`, `sent_frames`, and `failed_frames` per target and
+  in aggregate;
+- is stopped by `DEAUTH_STOP` or `STOP_ALL`.
+
+`STATUS.features` advertises `deauth_multi`. Android uses this capability only
+for multi-target selections. Older firmware and selections above 32 targets
+use the app-side repeated `DEAUTH_BURST` channel-hopping fallback.
+
+Burst response and loop start response fields:
+
+```json
+{
+  "ok": true,
+  "mode": "multi",
+  "active": false,
+  "target_count": 2,
+  "count": 20,
+  "duration": 0,
+  "interval_ms": 100,
+  "requested_frames": 40,
+  "sent_frames": 39,
+  "failed_frames": 1,
+  "elapsed_ms": 1234,
+  "pps": 31.6,
+  "targets": [
+    {
+      "bssid": "AA:BB:CC:DD:EE:FF",
+      "channel": 1,
+      "requested_frames": 20,
+      "sent_frames": 20,
+      "failed_frames": 0
+    }
+  ]
+}
+```
 
 > Core transport and framing: [PROTOCOL-SPEC.md](../PROTOCOL-SPEC.md)
 
