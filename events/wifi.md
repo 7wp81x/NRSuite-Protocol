@@ -47,3 +47,11 @@ Every event includes `type` plus event-specific fields.
 This event indicates observed WPS protocol activity, not proof of malicious
 intent. Android may add source-MAC vendor metadata and a Low/Medium/High risk
 label using session frequency and target/source diversity.
+
+### WPS attempt live lock-state event
+
+| Event type | Fields | Notes |
+|---|---|---|
+| `wps_ap_lock_state` | `bssid`, `ssid`, `channel`, `rssi`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `observed_at_ms` | Emitted by the WPS Attempt Detector when it first observes or detects a change in an AP's WPS lock state. Android treats this as live evidence; absence of the lock attribute maps to likely-unlocked with reduced confidence. |
+
+The app combines this live event with the last `WPS_LOCK_SCAN` result. Saved scan state is contextual only and expires; live observations take precedence for risk escalation.
