@@ -41,7 +41,10 @@ PMKID capture and Pwngrid advertising are out of scope.
 > On ESP32-C5, `SCAN_WIFI` keeps the radio in dual-band AUTO mode and restricts
 > the scan with the 2.4/5 GHz channel bitmaps. This avoids the idle 2.4 GHz
 > helper SoftAP blocking 5 GHz scans. Explicit 5 GHz scans use passive scan
-> timing so DFS channels are not skipped by active-scan restrictions.
+> timing so DFS channels are not skipped by active-scan restrictions. As a
+> final guard, firmware drops any returned AP whose channel does not match an
+> explicit `2g` or `5g` request. `count` therefore reports emitted matching APs
+> and `scanned` reports the raw scan-result count.
 >
 > `SET_COUNTRY` and the `allowed_*_channels` fields are authoritative for
 > regulatory filtering. The firmware rejects fixed channels not permitted by
@@ -52,7 +55,7 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g"}` | `{ok:true,count:N,band}` | `scan_ap` per network |
+| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g"}` | `{ok:true,count:N,scanned:M,band}` | `scan_ap` per matching network |
 | `SET_COUNTRY` | `{country:"US"|"GB"|"01"|...}` | `{ok:true,country,allowed_2ghz_channels,allowed_5ghz_channels}` | Persists regulatory country and refreshes channel mask |
 | `START_SNIFF` | `{mode:"fixed"|"hop",band?:"auto"|"2g"|"5g",channel,interval_ms,eapol_only,bssid,all_beacons}` | `{ok:true}` | `PCAP` frames |
 | `STOP_SNIFF` | none | `{ok:true,captured,sent,dropped}` | |
