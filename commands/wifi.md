@@ -225,3 +225,8 @@ for Android-side vendor lookup and risk scoring.
 - `channels` restricts the monitor to those channels. One channel gives fixed monitoring; multiple channels hop only across that set.
 - Omitting `channels` uses the allowed band channels: 2.4 GHz, or 2.4/5 GHz when the board supports 5 GHz and `band:"auto"`.
 - Every requested channel is validated against the active regulatory mask.
+- `wps_attempt_session` preserves per-session evidence flags for M1-M8,
+  M2D, and NACK. Earlier M1-M3 or M7-M8 evidence remains visible after a later
+  NACK. Android raises High risk for same-session M1+M2+M3 (offline PIN
+  cracking material) or M7+M8 (WPA PSK likely transferred); NACK alone is not
+  sufficient.

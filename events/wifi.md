@@ -42,11 +42,22 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `wps_attempt_session` | `state`, `session_id`, `bssid`, `client`, `ssid`, `channel`, `rssi`, `stage`, `message_type`, `frames`, `first_seen_ms`, `last_seen_ms`, `duration_ms` | `state` is `started` or `progress`. `stage` is one of `Identity`, `M1`..`M8`, `M2D`, `ACK`, `NACK`, or `DONE`. `ssid` is filled when firmware has observed a matching beacon/probe response. |
+| `wps_attempt_session` | `state`, `session_id`, `bssid`, `client`, `ssid`, `channel`, `rssi`, `stage`, `message_type`, `m1_seen`, `m2_seen`, `m3_seen`, `m4_seen`, `m5_seen`, `m6_seen`, `m7_seen`, `m8_seen`, `m2d_seen`, `nack_seen`, `crackable_material`, `credentials_likely_transferred`, `frames`, `first_seen_ms`, `last_seen_ms`, `duration_ms` | `state` is `started` or `progress`. `stage` is the latest observed stage: `Identity`, `M1`..`M8`, `M2D`, `ACK`, `NACK`, or `DONE`. The `*_seen` booleans preserve evidence from earlier in the same session, even if a later NACK/M2D becomes the latest stage. `crackable_material` is true when M1+M2+M3 were observed; `credentials_likely_transferred` is true when M7+M8 were observed. `ssid` is filled when firmware has observed a matching beacon/probe response. |
 
 This event indicates observed WPS protocol activity, not proof of malicious
 intent. Android may add source-MAC vendor metadata and a Low/Medium/High risk
-label using session frequency and target/source diversity.
+label using session frequency, target/source diversity, and captured WPS
+protocol evidence.
+
+Risk guidance:
+
+- **High:** the same session observed **M1+M2+M3** (offline WPS PIN-cracking
+  material), or **M7+M8** (WPA PSK likely transferred). A later NACK does not
+  remove earlier evidence.
+- **Medium:** NACK/M2D alone, partial M1-M3 evidence, M7 without M8, multiple
+  attempts, or multiple source MACs.
+- **Low:** an isolated identity/single-message observation with no crackable or
+  credential-transfer evidence.
 
 ### WPS attempt live lock-state event
 
