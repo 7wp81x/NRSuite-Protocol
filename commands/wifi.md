@@ -38,6 +38,11 @@ PMKID capture and Pwngrid advertising are out of scope.
 > always request firmware AUTO so the WiFi Scan filter cannot leak across
 > modules. Hopping modules expose their own band selector.
 >
+> On ESP32-C5, `SCAN_WIFI` keeps the radio in dual-band AUTO mode and restricts
+> the scan with the 2.4/5 GHz channel bitmaps. This avoids the idle 2.4 GHz
+> helper SoftAP blocking 5 GHz scans. Explicit 5 GHz scans use passive scan
+> timing so DFS channels are not skipped by active-scan restrictions.
+>
 > `SET_COUNTRY` and the `allowed_*_channels` fields are authoritative for
 > regulatory filtering. The firmware rejects fixed channels not permitted by
 > the active country mask, and Android limits its channel steppers to those
