@@ -10,6 +10,9 @@ Always check this table when pairing an app release with a firmware release.
 |---|---|---|---|
 | v1.0.0-beta | v1.0.0-beta | v1.0 | Initial beta |
 | v1.0.0-beta.2 | v1.0.0-beta.2 | v1.0 | Defense, BLE recon, multi-device USB, and flasher updates |
+| v1.0.0-beta.2.2 / beta.2.4 | v1.0.0-beta.2 | v1.0 | External UART bridge and CH340/CP210x/FTDI hotfixes |
+| v1.0.0-beta.3 | v1.0.0-beta.3 | v1.0 | IR, sensors, C5 dual-band, NRuGochi, and flasher fixes |
+| v1.0.0-beta.3.1 | v1.0.0-beta.3.1 | v1.0 | Portal restart hardening, visitor logs, scan reliability, IR DB/GPIO refinements, and beta.3.1 fixes |
 | next mesh beta | next mesh beta | v1.1 draft | Mesh Foundation: HKDF key provisioning, USB auth challenge, master election, session IDs, heartbeat |
 
 ## How to read this table
@@ -37,6 +40,12 @@ The app queries the firmware during the connection handshake via `STATUS`:
 The app displays the firmware version and device ID. Minor version mismatches are generally safe. Major version mismatches may cause command failures.
 
 ## Spec change log
+
+### v1.0 - beta.3.1 additive updates
+- Added `portal_client_seen` with IP, best-effort MAC, User-Agent, request type, and timestamp.
+- Added `request_type` to `captive_data`; GET `/login` and credential-like GET query fields are captured in addition to POST.
+- Documented `SCAN_WIFI` `settle_ms` and `dwell_ms`, adaptive low-result scans, and response `dwell_ms`.
+- No on-wire breaking changes; protocol compatibility remains `v1.0`.
 
 ### v1.1 - Mesh Foundation (draft)
 - Add `MESH_PROVISION_KEY`, `MESH_CLEAR_KEY`, `MESH_AUTH_CHALLENGE`, `MESH_STATUS`, `MESH_ACTIVATE`, and `MESH_DEACTIVATE`.

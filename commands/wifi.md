@@ -38,6 +38,12 @@ PMKID capture and Pwngrid advertising are out of scope.
 > always request firmware AUTO so the WiFi Scan filter cannot leak across
 > modules. Hopping modules expose their own band selector.
 >
+> Classic ESP32 uses a longer 500 ms channel dwell by default because short
+> active scans can intermittently return very small AP lists. Newer targets
+> default to 300 ms. The Android app also compares the response count with the
+> number of received `scan_ap` events to distinguish RF scan misses from
+> USB/UART transport loss.
+>
 > On ESP32-C5, `SCAN_WIFI` keeps the radio in dual-band AUTO mode and restricts
 > the scan with the 2.4/5 GHz channel bitmaps. This avoids the idle 2.4 GHz
 > helper SoftAP blocking 5 GHz scans. Explicit 5 GHz scans use passive scan
@@ -55,8 +61,8 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g"}` | `{ok:true,count:N,scanned:M,band}` | `scan_ap` per matching network |
-| `SET_COUNTRY` | `{country:"US"|"GB"|"01"|...}` | `{ok:true,country,allowed_2ghz_channels,allowed_5ghz_channels}` | Persists regulatory country and refreshes channel mask |
+| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g",settle_ms?:number,dwell_ms?:number}` | `{ok:true,count:N,scanned:M,band,dwell_ms}` | `scan_ap` per matching network; firmware serializes scans, settles 250-5000 ms (default 900), uses a 200-1000 ms channel dwell (classic ESP32 defaults to 500 ms), and retries empty/low-result scans up to two times |
+| `SET_COUNTRY` | `{country:"US"|"GB"|"CH"|"01"|...}` | `{ok:true,country,allowed_2ghz_channels,allowed_5ghz_channels}` | Persists regulatory country and refreshes channel mask. Blank firmware NVS defaults to `CH`; an existing saved country is preserved. |
 | `START_SNIFF` | `{mode:"fixed"|"hop",band?:"auto"|"2g"|"5g",channel,interval_ms,eapol_only,bssid,all_beacons}` | `{ok:true}` | `PCAP` frames |
 | `STOP_SNIFF` | none | `{ok:true,captured,sent,dropped}` | |
 | `START_CLIENT_DETECT` | `{mode:"fixed"|"hop",band?:"auto",channel,interval_ms}` | `{ok:true}` | `client_detected` |
@@ -80,16 +86,35 @@ PMKID capture and Pwngrid advertising are out of scope.
 | `START_BEACON` | `{ssids:"SSID1\nSSID2",band?:"auto",channel,interval_ms,random_bssid,hidden}` | `{ok:true,ssids,channel}` | |
 | `STOP_BEACON` | none | `{ok:true,sent,ssids}` | |
 | `BEACON_STATUS` | none | `{ok:true,active,ssids,sent,channel}` | |
-| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_viewed`, `captive_data`, `client_associated` |
+| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `captive_data`, `client_associated` |
 | `STOP_PORTAL` | none | `{ok:true}` | |
-| `RESET_HTML` | `{size}` | `{ok:true}` | `debug` events |
-| `SET_HTML_CHUNK` | `{data:"<base64>",last:bool,offset?:number}` | `{ok:true}` | `debug` events |
+| `RESET_HTML` | `{size}` | `{ok:true}` | `debug` events; creates/truncates the portal HTML file |
+| `SET_HTML_CHUNK` | `{data:"<base64>",last:bool,offset?:number}` | `{ok:true}` | `debug` events; writes directly to portal storage |
 | `PORTAL_STATUS` | none | `{ok:true,running,html_size,html_expected,html_complete}` | |
 
 > Captive Portal and Evil Twin currently fail fast with a visible Android error;
 > they do not silently change channels. Evil Twin must use the target AP channel
 > for correctness, and Captive Portal keeps the same no-surprise policy until an
 > explicit auto-fallback option is added.
+
+Portal data capture:
+
+- `captive_data` is emitted for POST `/login`, GET `/login`, and credential-like GET query parameters on `/` and `/continue`. `request_type` identifies the request form.
+
+Portal HTML storage:
+
+- `show_notice` defaults to `true`. When true, `/` serves the firmware test
+  notice page and `/continue` serves the uploaded HTML. When false, `/` serves
+  the uploaded HTML directly.
+- S2/S3 store portal HTML on the existing FAT `msc_ffat` partition so USB MSC
+  remains host-readable.
+- C3/C5/classic ESP32 store portal HTML on the dedicated LittleFS `portal`
+  partition.
+- Android renders `#SSID#` into a temporary cache file and uploads it in
+  chunks; the full page is not held in Android RAM.
+- Firmware writes chunks to `/portal/index.html` and streams that file from the
+  HTTP server. The full page is no longer retained in `_htmlBuffer`.
+- The current maximum HTML size remains 24 KiB.
 
 ### Deauth modes
 
@@ -253,7 +278,7 @@ Implemented or planned extensions are tracked in
   `subtype:"probe_request"`; no new command is required.
 - PMKID capture commands/events are not defined yet.
 - Captive Portal / Evil Twin template management reuses the existing
-  `RESET_HTML` and `SET_HTML_CHUNK` flow.
+  file-backed `RESET_HTML` and `SET_HTML_CHUNK` flow.
 
 ## WPS Attempt Detector
 
