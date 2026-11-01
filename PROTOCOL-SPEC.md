@@ -252,10 +252,11 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `sniff` | Packet sniffer |
 | `client_detect` | Client/presence detector |
 | `deauth` | Deauth injection |
+| `deauth_multi` | Firmware-native multi-target deauth with per-target channel scheduling |
 | `deauth_detect` | Deauth detector |
 | `beacon` | Beacon spam |
 | `portal` | Captive portal / Evil Twin AP |
-| `portal_html_offset` | HTML chunks support offset-based upload |
+| `portal_html_offset` | HTML chunks support offset-based upload; current portals are file-backed (FAT on S2/S3, LittleFS on C3/C5/classic) |
 | `html_diag` | HTML upload diagnostic events |
 | `stop_all` | `STOP_ALL` command |
 | `wps` | WPS flag included in `scan_ap` |
