@@ -204,8 +204,7 @@ for either a successful PSK recovery or capture of Pixie Dust material after a
 wrong-PIN rejection. The app owns PIN generation, the BSSID->PIN database, and
 the offline Pixiewps search. Firmware executes one PIN attempt per command.
 
-`STATUS.features` advertises `wps_pixie` on builds where raw WPS registrar
-injection is supported (currently ESP32-S3 and ESP32-C5).
+`STATUS.features` advertises `wps_pixie` on all ESP32 firmware builds where raw WPS registrar injection is supported.
 
 | Command | Args | Response | Events |
 |---|---|---|---|

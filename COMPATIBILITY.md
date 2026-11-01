@@ -13,6 +13,7 @@ Always check this table when pairing an app release with a firmware release.
 | v1.0.0-beta.2.2 / beta.2.4 | v1.0.0-beta.2 | v1.0 | External UART bridge and CH340/CP210x/FTDI hotfixes |
 | v1.0.0-beta.3 | v1.0.0-beta.3 | v1.0 | IR, sensors, C5 dual-band, NRuGochi, and flasher fixes |
 | v1.0.0-beta.3.1 | v1.0.0-beta.3.1 | v1.0 | Portal restart hardening, visitor logs, scan reliability, IR DB/GPIO refinements, and beta.3.1 fixes |
+| v1.0.0-beta.3.1.1 | v1.0.0-beta.3.1.1 | v1.0 | IRDB presence/caching hotfix and WPS Pixie support across all ESP32 targets |
 | next mesh beta | next mesh beta | v1.1 draft | Mesh Foundation: HKDF key provisioning, USB auth challenge, master election, session IDs, heartbeat |
 
 ## How to read this table
