@@ -194,13 +194,15 @@ WPS. A passive promiscuous pass then listens for beacons/probe responses on the
 selected band and enriches those candidates with WPS IE metadata such as AP
 Setup Locked, WPS version, configuration methods, and selected-registrar state.
 The active-scan SSID, channel, security, and RSSI are retained when available;
-passive-only WPS observations are still included. It emits one `wps_lock_ap`
-event per WPS-enabled AP in legacy mode and does not attempt a WPS PIN or send
-WPS M1-M4 messages.
+passive-only WPS observations are still included. By default it emits one
+`wps_lock_ap` event per WPS-enabled AP in legacy mode. With
+`include_non_wps:true`, active-scan non-WPS APs are also returned as `scan_ap`
+records for UI filtering. It does not attempt a WPS PIN or send WPS M1-M4
+messages.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120,pull_results?:bool}` | Legacy: `{ok:true,count}`. Pull: `{ok:true,scan_id,count,scanned,kind:"wps",truncated}` | Legacy firmware emits `wps_lock_ap` events. With `pull_results:true`, retrieve the same result objects through `SCAN_RESULTS`. |
+| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120,pull_results?:bool,include_non_wps?:bool}` | Legacy: `{ok:true,count}`. Pull: `{ok:true,scan_id,count,scanned,kind:"wps",include_non_wps,truncated}` | Default is WPS-only discovery. `include_non_wps:true` adds other active-scan APs with `wps:false`; pull results use `scan_ap` for those rows and `wps_lock_ap` for WPS rows. The WPS Pixie screen uses this to make its WPS-only toggle functional. |
 
 `STATUS.features` advertises `wps_lock_detect` when this scan is available.
 

@@ -20,7 +20,7 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `wps_lock_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `wps_version`, `config_methods`, `selected_registrar`, `last_seen_ms` | Emitted by legacy `WPS_LOCK_SCAN` calls. Pull-capable firmware returns the same objects through `SCAN_RESULTS`. Records originate from the active-scan WPS candidate set and may be enriched by a passive WPS IE pass. `lock_reported:false` means the AP did not advertise the WPS AP Setup Locked attribute and should be shown as likely unlocked rather than confirmed unlocked. |
+| `wps_lock_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `wps_version`, `config_methods`, `selected_registrar`, `last_seen_ms` | Emitted by legacy `WPS_LOCK_SCAN` calls. Pull-capable firmware returns the same objects through `SCAN_RESULTS`. Records originate from the active-scan WPS candidate set and may be enriched by a passive WPS IE pass. `lock_reported:false` means the AP did not advertise the WPS AP Setup Locked attribute and should be shown as likely unlocked rather than confirmed unlocked. When `include_non_wps:true`, non-WPS APs are returned as `scan_ap` records with `wps:false`. |
 
 ## WPS Pixie Dust events
 
