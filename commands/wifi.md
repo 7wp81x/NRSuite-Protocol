@@ -188,11 +188,15 @@ Burst response and loop start response fields:
 
 ## WPS Lock Detector
 
-`WPS_LOCK_SCAN` performs a passive WPS AP discovery scan. It listens for
-beacons/probe responses on the selected band, parses each AP's WPS IE, and emits
-one `wps_lock_ap` event per WPS-enabled AP. It does not attempt a WPS PIN or send
-WPS M1-M4 messages. After the passive pass it may run a normal non-WPS active
-scan only to resolve missing SSID names for the captured BSSIDs.
+`WPS_LOCK_SCAN` uses a hybrid discovery pass. A normal active Wi-Fi scan first
+builds the authoritative candidate set from APs whose scan record advertises
+WPS. A passive promiscuous pass then listens for beacons/probe responses on the
+selected band and enriches those candidates with WPS IE metadata such as AP
+Setup Locked, WPS version, configuration methods, and selected-registrar state.
+The active-scan SSID, channel, security, and RSSI are retained when available;
+passive-only WPS observations are still included. It emits one `wps_lock_ap`
+event per WPS-enabled AP in legacy mode and does not attempt a WPS PIN or send
+WPS M1-M4 messages.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
