@@ -4,7 +4,7 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `band` | Emitted by `SCAN_WIFI`; `band` is `2g` or `5g` |
+| `scan_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `band` | Emitted by legacy `SCAN_WIFI` calls. Firmware with `scan_results_pull` returns the same objects through `SCAN_RESULTS` when the app requests pull mode. |
 | `deauth_stats` | `status`, `mode`, `bssid?`, `client?`, `channel?`, `target_bssid?`, `target_count?`, `count?`, `requested_frames?`, `sent_frames`, `failed_frames`, `duration_s?`, `interval_ms`, `elapsed_ms`, `pps`, `stopped?`, `reason?`, `targets?` | Burst completion, loop progress (`status:"running"`), or loop completion (`status:"finished"`). `mode:"multi"` includes aggregate and per-target `{bssid,channel,requested_frames,sent_frames,failed_frames}` counters. |
 | `client_detected` | `client`, `bssid?`, `ssid?`, `subtype`, `rssi`, `channel` | Client detector |
 | `client_associated` | `client`, `bssid`, `rssi` | Portal association monitor |
@@ -20,7 +20,7 @@ Every event includes `type` plus event-specific fields.
 
 | Event type | Fields | Notes |
 |---|---|---|
-| `wps_lock_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `wps_version`, `config_methods`, `selected_registrar`, `last_seen_ms` | Emitted by `WPS_LOCK_SCAN` for each observed WPS-enabled AP. `lock_reported:false` means the AP did not advertise the WPS AP Setup Locked attribute and should be shown as likely unlocked rather than confirmed unlocked. |
+| `wps_lock_ap` | `ssid`, `bssid`, `channel`, `rssi`, `security`, `wps`, `wps_parsed`, `lock_reported`, `ap_setup_locked`, `wps_version`, `config_methods`, `selected_registrar`, `last_seen_ms` | Emitted by legacy `WPS_LOCK_SCAN` calls. Pull-capable firmware returns the same objects through `SCAN_RESULTS`. `lock_reported:false` means the AP did not advertise the WPS AP Setup Locked attribute and should be shown as likely unlocked rather than confirmed unlocked. |
 
 ## WPS Pixie Dust events
 

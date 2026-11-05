@@ -1,7 +1,8 @@
 # NRSuite Wire Protocol Specification
 
-**Version: 1.0**
-**Next draft: 1.1 (Mesh Foundation)**
+**Wire major: 1.0**
+**Latest additive revision: proto_minor 2 (pull-based scan results)**
+**Next draft major/minor: 1.1 (Mesh Foundation)**
 **Status: Stable (beta)**
 
 This document is the authoritative reference for the NRSuite Android app and ESP32 firmware transport.
@@ -193,7 +194,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
   "flash_size": 4194304,
   "sdk": "v5.5.0",
   "proto": 1,
-  "proto_minor": 0,
+  "proto_minor": 2,
   "fw": "1.0.0-beta.2",
   "device_id": "NR1A2B3C4D",
   "country": "US",
@@ -227,7 +228,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `flash_size` | uint32? | Flash size in bytes. Additive optional field |
 | `sdk` | string? | ESP-IDF/Arduino SDK version string. Additive optional field |
 | `proto` | int | Protocol major version. Currently `1` |
-| `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds will report `1` |
+| `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds report `1`; pull-based scan result builds report `2` |
 | `fw` | string | Firmware version |
 | `device_id` | string | Persistent `NRxxxxxxxx` ID from NVS (10 characters total) |
 | `country` | string | Active Wi-Fi regulatory country, e.g. `01`, `US`, `GB` |
@@ -283,6 +284,7 @@ periodically rather than extrapolating from the initial handshake.
 | `html_diag` | HTML upload diagnostic events |
 | `stop_all` | `STOP_ALL` command |
 | `wps` | WPS flag included in `scan_ap` |
+| `scan_results_pull` | Firmware retains a bounded `SCAN_WIFI`/`WPS_LOCK_SCAN` snapshot and supports `SCAN_RESULTS` chunk retrieval with CRC32 verification |
 | `wifi_2ghz` | 2.4 GHz Wi-Fi band is supported |
 | `wifi_5ghz` | 5 GHz Wi-Fi band is enabled in this firmware build (advertised by C5 builds) |
 | `hidden_ap` | Hidden AP revealer |
@@ -298,6 +300,35 @@ periodically rather than extrapolating from the initial handshake.
 | `pin_bruteforce` | Native USB HID PIN range/wordlist tester |
 | `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
 | `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
+
+### Pull-based scan results
+
+Firmware that advertises `scan_results_pull` accepts
+`SCAN_WIFI`/`WPS_LOCK_SCAN` with `pull_results:true`. The command response then
+contains `scan_id`, `count`, `kind`, and (if applicable) `truncated`. The app
+retrieves bounded chunks with:
+
+```json
+{"cmd":"SCAN_RESULTS","args":{"scan_id":42,"offset":0,"limit":4}}
+```
+
+```json
+{
+  "ok": true,
+  "scan_id": 42,
+  "kind": "wifi",
+  "offset": 0,
+  "count": 4,
+  "total": 7,
+  "next_offset": 4,
+  "crc32": 123456789,
+  "results": []
+}
+```
+
+See [commands/wifi.md](./commands/wifi.md#pull-based-scan-result-chunks) for the
+canonical CRC input and retry rules. Legacy firmware continues to emit
+`scan_ap`/`wps_lock_ap` events when pull mode is not requested.
 
 ---
 

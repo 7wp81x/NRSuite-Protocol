@@ -40,9 +40,11 @@ PMKID capture and Pwngrid advertising are out of scope.
 >
 > Classic ESP32 uses a longer 500 ms channel dwell by default because short
 > active scans can intermittently return very small AP lists. Newer targets
-> default to 300 ms. The Android app also compares the response count with the
-> number of received `scan_ap` events to distinguish RF scan misses from
-> USB/UART transport loss.
+> default to 300 ms. Firmware advertising `scan_results_pull` stores a bounded
+> snapshot and the app retrieves it with `SCAN_RESULTS`; legacy firmware is
+> still supported through `scan_ap` events. The app compares the response count
+> with the number of verified pulled records (or legacy events) to distinguish
+> RF scan misses from USB/UART transport loss.
 >
 > On ESP32-C5, `SCAN_WIFI` keeps the radio in dual-band AUTO mode and restricts
 > the scan with the 2.4/5 GHz channel bitmaps. This avoids the idle 2.4 GHz
@@ -61,7 +63,8 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g",settle_ms?:number,dwell_ms?:number}` | `{ok:true,count:N,scanned:M,band,dwell_ms}` | `scan_ap` per matching network; firmware serializes scans, settles 250-5000 ms (default 900), uses a 200-1000 ms channel dwell (classic ESP32 defaults to 500 ms), and retries empty/low-result scans up to two times |
+| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g",settle_ms?:number,dwell_ms?:number,pull_results?:bool}` | Legacy: `{ok:true,count:N,scanned:M,band,dwell_ms}`. Pull: `{ok:true,scan_id,count:N,scanned:M,band,dwell_ms,kind:"wifi",truncated}` | Legacy firmware emits `scan_ap` events. When `pull_results:true` (or the firmware advertises `scan_results_pull`), the app instead calls `SCAN_RESULTS` and the firmware does not emit the event burst. Firmware serializes scans, settles 250-5000 ms (default 900), uses a 200-1000 ms channel dwell (classic ESP32 defaults to 500 ms), and retries empty/low-result scans up to two times. `count` is the number of retrievable records; `truncated:true` means the bounded snapshot dropped excess APs. |
+| `SCAN_RESULTS` | `{scan_id,offset,limit?}` | `{ok:true,scan_id,kind,offset,count,total,next_offset,crc32,results:[...]}` | Pull-based retrieval of the most recent `SCAN_WIFI` or `WPS_LOCK_SCAN` snapshot. `limit` is clamped to 1-8 (default 4). Each chunk is independently verifiable and may be retried with the same `scan_id`/`offset`. |
 | `SET_COUNTRY` | `{country:"US"|"GB"|"CH"|"01"|...}` | `{ok:true,country,allowed_2ghz_channels,allowed_5ghz_channels}` | Persists regulatory country and refreshes channel mask. Blank firmware NVS defaults to `CH`; an existing saved country is preserved. |
 | `START_SNIFF` | `{mode:"fixed"|"hop",band?:"auto"|"2g"|"5g",channel,interval_ms,eapol_only,bssid,all_beacons}` | `{ok:true}` | `PCAP` frames |
 | `STOP_SNIFF` | none | `{ok:true,captured,sent,dropped}` | |
@@ -193,9 +196,34 @@ scan only to resolve missing SSID names for the captured BSSIDs.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120}` | `{ok:true,count}` | `wps_lock_ap` |
+| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120,pull_results?:bool}` | Legacy: `{ok:true,count}`. Pull: `{ok:true,scan_id,count,scanned,kind:"wps",truncated}` | Legacy firmware emits `wps_lock_ap` events. With `pull_results:true`, retrieve the same result objects through `SCAN_RESULTS`. |
 
 `STATUS.features` advertises `wps_lock_detect` when this scan is available.
+
+
+### Pull-based scan result chunks
+
+The app requests chunks until `next_offset >= total`. On timeout, invalid JSON,
+offset/count mismatch, CRC mismatch, or a non-progressing chunk, it retries the
+same chunk up to three times before preserving any records already received.
+
+`crc32` is the standard IEEE 802.3/zlib CRC-32 (polynomial `0xEDB88320`) over a
+UTF-8 canonical string. For each result in chunk order:
+
+```text
+wifi|<ssid_byte_len>:<ssid>|<BSSID>|<channel>|<rssi>|
+  <security_byte_len>:<security>|<wps 0/1>|<band>\n
+
+wps|<ssid_byte_len>:<ssid>|<BSSID>|<channel>|<rssi>|
+  <security_byte_len>:<security>|<wps 0/1>|<wps_parsed 0/1>|
+  <lock_reported 0/1>|<ap_setup_locked 0/1>|<wps_version>|
+  <config_methods>|<selected_registrar 0/1>|<last_seen_ms>\n
+```
+
+Lengths are UTF-8 byte lengths. The app computes the same canonical string from
+the parsed `results` array. The snapshot is bounded to 32 records per scan;
+`truncated` is set when the radio returned more results than the snapshot can
+hold.
 
 ## WPS Pixie Dust
 

@@ -27,9 +27,11 @@ This spec uses `MAJOR.MINOR` versioning:
 
 App and firmware releases each declare which spec version they implement. See the [compatibility table](./COMPATIBILITY.md).
 
-**Current version: `1.0`**
+**Current wire major: `1.0`**
 
-**Draft next version: `1.1` (Mesh Foundation)**
+**Latest additive revision: `proto_minor 2` (pull-based scan results)**
+
+**Draft next major/minor: `1.1` (Mesh Foundation)**
 
 ---
 
