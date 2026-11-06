@@ -81,6 +81,7 @@ The app displays the firmware version and device ID. Minor version mismatches ar
 - Added `STATUS` field and feature-flag reference.
 - Added event reference for scanner, defense, portal, and BLE events.
 - Added optional `psram` feature flag for S3 builds with initialized external PSRAM.
+- Added optional `temp_c` internal chip/die temperature and `temp_sensor` capability.
 - No on-wire breaking changes; protocol version remains `v1.0`.
 
 ### v1.0 - initial
