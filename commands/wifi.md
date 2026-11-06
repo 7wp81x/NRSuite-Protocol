@@ -21,7 +21,8 @@ The response reports `requested_frames`, `sent_frames`, `failed_frames`, and
 `targets`. Android logs the successful/requested count after each channel pass.
 
 `START_SNIFF` also accepts `all_beacons:true` for passive channel capture.
-Firmware advertises the capability as `nrugochi` in `STATUS.features`.
+Firmware advertises the capability as `nrugochi` in `STATUS.features`. ESP32-S2
+builds intentionally omit this capability for release memory/profile reasons.
 PMKID capture and Pwngrid advertising are out of scope.
 
 ## Wi-Fi Recon

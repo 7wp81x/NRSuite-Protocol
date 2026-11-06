@@ -18,10 +18,10 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Beacon Injection | ✅ | Beacon frame injection/spoofing |
 | Deauthentication | ✅ | Deauth frame injection |
 | Evil Twin | ✅ | Rogue AP with captive portal |
-| Captive Portal | ✅ | Credential harvesting UI |
+| Captive Portal | ✅ | Credential harvesting UI; unavailable on ESP32-S2 until the FAT/portal-storage path is validated |
 | Packet Sniffer | ✅ | Monitor-mode capture, pcap export; per-module Auto/2.4/5 GHz hop selection and target-channel-aware fixed capture |
 | WPA Handshake Capture/Crack | ✅ | Offline dictionary cracking |
-| Nrugochi | 🚧 | Pwnagotchi-style RECON/INTERACT loop: channel-density ordering, multi-AP authorized deauth with frame telemetry, all-EAPOL/all-beacon capture, per-BSSID `HS_<BSSID>.pcap` output, mood UI, session persistence. Advertised as `nrugochi`. PMKID excluded. Hardware validation pending. |
+| Nrugochi | 🚧 | Pwnagotchi-style RECON/INTERACT loop: channel-density ordering, multi-AP authorized deauth with frame telemetry, all-EAPOL/all-beacon capture, per-BSSID `HS_<BSSID>.pcap` output, mood UI, session persistence. Advertised as `nrugochi`; disabled on ESP32-S2. PMKID excluded. Hardware validation pending. |
 | BLE Scan/Interaction | ✅ | Bluetooth LE device interaction |
 | BadUSB | ✅ | HID injection via USB |
 | PIN Bruteforce | ✅ | Native-HID range/wordlist tester; one-shot boot-arm like BadUSB; max-attempt safety cap, estimated total/progress, configurable typing/start delays, session persistence and events; native HID only |
