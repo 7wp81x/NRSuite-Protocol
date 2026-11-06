@@ -89,7 +89,7 @@ PMKID capture and Pwngrid advertising are out of scope.
 | `START_BEACON` | `{ssids:"SSID1\nSSID2",band?:"auto",channel,interval_ms,random_bssid,hidden}` | `{ok:true,ssids,channel}` | |
 | `STOP_BEACON` | none | `{ok:true,sent,ssids}` | |
 | `BEACON_STATUS` | none | `{ok:true,active,ssids,sent,channel}` | |
-| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `captive_data`, `client_associated` |
+| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `portal_dns_hijack`, `captive_data`, `client_associated` |
 | `STOP_PORTAL` | none | `{ok:true}` | |
 | `RESET_HTML` | `{size}` | `{ok:true}` | `debug` events; creates/truncates the portal HTML file |
 | `SET_HTML_CHUNK` | `{data:"<base64>",last:bool,offset?:number}` | `{ok:true}` | `debug` events; writes directly to portal storage |
@@ -103,6 +103,7 @@ PMKID capture and Pwngrid advertising are out of scope.
 Portal data capture:
 
 - `captive_data` is emitted for POST `/login`, GET `/login`, and credential-like GET query parameters on `/` and `/continue`. `request_type` identifies the request form.
+- `/` and `/continue` serve portal content, `/login` handles submissions, and unmatched paths are served the landing page directly. Firmware also advertises `192.168.4.1` as the DHCP DNS server and best-effort intercepts plaintext IPv4 UDP DNS sent to external resolvers.
 
 Portal HTML storage:
 
