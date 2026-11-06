@@ -13,6 +13,7 @@ This document lists all current and planned features across the NRSuite ecosyste
 | Feature | Status | Notes |
 |---|---|---|
 | Wi-Fi Scan | ✅ | Active AP/channel discovery; capability-driven AUTO 2.4+5 GHz on C5, regulatory country/channel mask via `STATUS`, 2.4 GHz fallback elsewhere |
+| ESP32-S3 PSRAM | ✅ | Separate PSRAM build for N4R2-class S3 boards; advertises `psram` and uses external RAM for large non-DMA sniffer queues with internal-RAM fallback |
 | Beacon Injection | ✅ | Beacon frame injection/spoofing |
 | Deauthentication | ✅ | Deauth frame injection |
 | Evil Twin | ✅ | Rogue AP with captive portal |

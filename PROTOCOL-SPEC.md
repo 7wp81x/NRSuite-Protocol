@@ -287,6 +287,7 @@ periodically rather than extrapolating from the initial handshake.
 | `scan_results_pull` | Firmware retains a bounded `SCAN_WIFI`/`WPS_LOCK_SCAN` snapshot and supports `SCAN_RESULTS` chunk retrieval with CRC32 verification |
 | `wifi_2ghz` | 2.4 GHz Wi-Fi band is supported |
 | `wifi_5ghz` | 5 GHz Wi-Fi band is enabled in this firmware build (advertised by C5 builds) |
+| `psram` | Internal heap is accompanied by initialized PSRAM; `psram_total` and `psram_free` are meaningful |
 | `hidden_ap` | Hidden AP revealer |
 | `storage` | Mass storage/file operations |
 | `ld2450` | HLK-LD2450 mmWave radar parser and events |
