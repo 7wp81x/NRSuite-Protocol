@@ -10,7 +10,7 @@
 | `BLE_PROFILE_START` | `{address,address_type}` | `{ok:true}` | `ble_profile`, `ble_service`, `ble_characteristic` |
 | `BLE_PROFILE_STOP` | none | `{ok:true}` | `ble_profile` |
 | `BLE_START` | `{name}` | `{ok:true}` | |
-| `BLE_STATUS` | none | `{ok:true,connected,advertising,peer}` | |
+| `BLE_STATUS` | none | `{ok:true,active,connected,linked,advertising,peer}` | `active` covers the full HID session including pairing and re-advertising; `linked` is the GAP connection, while `connected` means the host is authenticated and HID-ready. |
 | `BLE_STOP` | none | `{ok:true}` | |
 | `BLE_RUN_SCRIPT` | `{script}` | `{ok:true,lines}` | |
 | `BLE_STOP_SCRIPT` | none | `{ok:true}` | |
