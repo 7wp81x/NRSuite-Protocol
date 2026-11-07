@@ -13,6 +13,8 @@ Always check this table when pairing an app release with a firmware release.
 | v1.0.0-beta.2.2 / beta.2.4 | v1.0.0-beta.2 | v1.0 | External UART bridge and CH340/CP210x/FTDI hotfixes |
 | v1.0.0-beta.3 | v1.0.0-beta.3 | v1.0 | IR, sensors, C5 dual-band, NRuGochi, and flasher fixes |
 | v1.0.0-beta.3.1 | v1.0.0-beta.3.1 | v1.0 | Portal restart hardening, visitor logs, scan reliability, IR DB/GPIO refinements, and beta.3.1 fixes |
+| v1.0.0-beta.3.1.1 | v1.0.0-beta.3.1.1 | v1.0 | IRDB presence/caching hotfix and WPS Pixie support across all ESP32 targets |
+| v1.0.0-beta.3.2.0 | v1.0.0-beta.3.2.0 | v1.0 / proto_minor 2 | Dual USB/UART transport, device telemetry, pull-based scan results, scan transport diagnostics; legacy event fallback retained |
 | next mesh beta | next mesh beta | v1.1 draft | Mesh Foundation: HKDF key provisioning, USB auth challenge, master election, session IDs, heartbeat |
 
 ## How to read this table
@@ -41,6 +43,17 @@ The app displays the firmware version and device ID. Minor version mismatches ar
 
 ## Spec change log
 
+### proto_minor 2 - beta.3.2 additive scan-results reliability
+- Add `scan_results_pull` capability and `SCAN_RESULTS`.
+- Add optional `pull_results:true` to `SCAN_WIFI` and `WPS_LOCK_SCAN`.
+- Add `scan_id`, `kind`, `truncated`, `offset`, `total`, `next_offset`, and
+  `crc32` to scan result responses.
+- Firmware retains a bounded 32-record snapshot and stops emitting the legacy
+  result event burst when pull mode is requested.
+- Legacy firmware/app combinations continue to use `scan_ap` and
+  `wps_lock_ap` events.
+- No frame-format or breaking JSON changes; `proto` remains `1`.
+
 ### v1.0 - beta.3.1 additive updates
 - Added `portal_client_seen` with IP, best-effort MAC, User-Agent, request type, and timestamp.
 - Added `request_type` to `captive_data`; GET `/login` and credential-like GET query fields are captured in addition to POST.
@@ -67,6 +80,8 @@ The app displays the firmware version and device ID. Minor version mismatches ar
   - USB MSC and BadUSB
 - Added `STATUS` field and feature-flag reference.
 - Added event reference for scanner, defense, portal, and BLE events.
+- Added optional `psram` feature flag for S3 builds with initialized external PSRAM.
+- Added optional `temp_c` internal chip/die temperature and `temp_sensor` capability.
 - No on-wire breaking changes; protocol version remains `v1.0`.
 
 ### v1.0 - initial

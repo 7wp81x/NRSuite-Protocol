@@ -1,7 +1,8 @@
 # NRSuite Wire Protocol Specification
 
-**Version: 1.0**
-**Next draft: 1.1 (Mesh Foundation)**
+**Wire major: 1.0**
+**Latest additive revision: proto_minor 2 (pull-based scan results)**
+**Next draft major/minor: 1.1 (Mesh Foundation)**
 **Status: Stable (beta)**
 
 This document is the authoritative reference for the NRSuite Android app and ESP32 firmware transport.
@@ -182,9 +183,19 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
   "ok": true,
   "uptime": 123456,
   "heap": 123456,
+  "heap_total": 327680,
+  "heap_min_free": 98765,
+  "heap_max_alloc": 110592,
+  "psram_total": 8388608,
+  "psram_free": 8000000,
   "chip": "ESP32-S3",
+  "chip_cores": 2,
+  "cpu_mhz": 240,
+  "temp_c": 48.6,
+  "flash_size": 4194304,
+  "sdk": "v5.5.0",
   "proto": 1,
-  "proto_minor": 0,
+  "proto_minor": 2,
   "fw": "1.0.0-beta.2",
   "device_id": "NR1A2B3C4D",
   "country": "US",
@@ -207,14 +218,29 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `ok` | bool | Always present |
 | `uptime` | uint32 | Firmware uptime in milliseconds |
 | `heap` | uint32 | Free heap in bytes |
-| `chip` | string | `ESP32`, `ESP32-S2`, `ESP32-S3`, or `ESP32-C3` |
+| `heap_total` | uint32? | Total allocator heap size in bytes. Additive optional field |
+| `heap_min_free` | uint32? | Minimum free heap observed since boot. Additive optional field |
+| `heap_max_alloc` | uint32? | Largest currently allocatable heap block in bytes. Additive optional field |
+| `psram_total` | uint32? | PSRAM size in bytes; `0` when PSRAM is absent. Additive optional field |
+| `psram_free` | uint32? | Free PSRAM in bytes; `0` when PSRAM is absent. Additive optional field |
+| `chip` | string | `ESP32`, `ESP32-C2`, `ESP32-S2`, `ESP32-S3`, `ESP32-C3`, `ESP32-C5`, or `ESP32-C6` |
+| `chip_cores` | uint8? | Number of CPU cores. Additive optional field |
+| `cpu_mhz` | uint16? | Current CPU frequency in MHz. Additive optional field |
+| `temp_c` | float? | Internal chip/die temperature in Celsius. Additive optional field; omitted when the sensor is unavailable |
+| `flash_size` | uint32? | Flash size in bytes. Additive optional field |
+| `sdk` | string? | ESP-IDF/Arduino SDK version string. Additive optional field |
 | `proto` | int | Protocol major version. Currently `1` |
-| `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds will report `1` |
+| `proto_minor` | int | Protocol minor version. Omitted means `0`; mesh builds report `1`; pull-based scan result builds report `2` |
 | `fw` | string | Firmware version |
 | `device_id` | string | Persistent `NRxxxxxxxx` ID from NVS (10 characters total) |
 | `country` | string | Active Wi-Fi regulatory country, e.g. `01`, `US`, `GB` |
 | `allowed_2ghz_channels` | int[] | 2.4 GHz channels currently permitted by the active regulatory country |
 | `allowed_5ghz_channels` | int[] | 5 GHz channels currently permitted; empty when 5 GHz is unavailable |
+
+Device telemetry fields are additive and optional. Clients must tolerate their
+absence when connected to older firmware. Values reported in `STATUS` are a
+snapshot; clients that display live uptime/heap should re-request `STATUS`
+periodically rather than extrapolating from the initial handshake.
 | `features` | string[] | Compiled feature flags |
 | `sniffing` | bool | Sniffer active |
 | `client_detecting` | bool | Client detector active |
@@ -260,8 +286,11 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `html_diag` | HTML upload diagnostic events |
 | `stop_all` | `STOP_ALL` command |
 | `wps` | WPS flag included in `scan_ap` |
+| `scan_results_pull` | Firmware retains a bounded `SCAN_WIFI`/`WPS_LOCK_SCAN` snapshot and supports `SCAN_RESULTS` chunk retrieval with CRC32 verification |
 | `wifi_2ghz` | 2.4 GHz Wi-Fi band is supported |
 | `wifi_5ghz` | 5 GHz Wi-Fi band is enabled in this firmware build (advertised by C5 builds) |
+| `psram` | Internal heap is accompanied by initialized PSRAM; `psram_total` and `psram_free` are meaningful |
+| `temp_sensor` | Firmware can report internal chip/die temperature as optional `temp_c` |
 | `hidden_ap` | Hidden AP revealer |
 | `storage` | Mass storage/file operations |
 | `ld2450` | HLK-LD2450 mmWave radar parser and events |
@@ -275,6 +304,35 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
 | `pin_bruteforce` | Native USB HID PIN range/wordlist tester |
 | `mesh_provision` | Mesh provisioning support is compiled in; advertised even before keys are stored |
 | `mesh` | Mesh Foundation available; only advertised when valid derived keys exist |
+
+### Pull-based scan results
+
+Firmware that advertises `scan_results_pull` accepts
+`SCAN_WIFI`/`WPS_LOCK_SCAN` with `pull_results:true`. The command response then
+contains `scan_id`, `count`, `kind`, and (if applicable) `truncated`. The app
+retrieves bounded chunks with:
+
+```json
+{"cmd":"SCAN_RESULTS","args":{"scan_id":42,"offset":0,"limit":4}}
+```
+
+```json
+{
+  "ok": true,
+  "scan_id": 42,
+  "kind": "wifi",
+  "offset": 0,
+  "count": 4,
+  "total": 7,
+  "next_offset": 4,
+  "crc32": 123456789,
+  "results": []
+}
+```
+
+See [commands/wifi.md](./commands/wifi.md#pull-based-scan-result-chunks) for the
+canonical CRC input and retry rules. Legacy firmware continues to emit
+`scan_ap`/`wps_lock_ap` events when pull mode is not requested.
 
 ---
 

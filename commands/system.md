@@ -6,7 +6,7 @@
 | Command | Args | Response | Notes |
 |---|---|---|---|
 | `PING` | none | `{ok:true,msg:"pong"}` | Liveness check |
-| `STATUS` | none | See STATUS Response | Device/feature handshake |
+| `STATUS` | none | See STATUS Response | Device/feature handshake plus optional heap, PSRAM, CPU, and flash telemetry |
 | `HEAP` | none | Same as `STATUS` | Alias |
 | `STOP_ALL` | none | `{ok:true}` | Stops all radio/BLE/upload modules |
 | `SET_CHANNEL` | `{channel:1..13}` | `{ok:true}` | Changes sniffer channel |

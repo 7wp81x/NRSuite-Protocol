@@ -21,7 +21,8 @@ The response reports `requested_frames`, `sent_frames`, `failed_frames`, and
 `targets`. Android logs the successful/requested count after each channel pass.
 
 `START_SNIFF` also accepts `all_beacons:true` for passive channel capture.
-Firmware advertises the capability as `nrugochi` in `STATUS.features`.
+Firmware advertises the capability as `nrugochi` in `STATUS.features`. ESP32-S2
+builds intentionally omit this capability for release memory/profile reasons.
 PMKID capture and Pwngrid advertising are out of scope.
 
 ## Wi-Fi Recon
@@ -40,9 +41,11 @@ PMKID capture and Pwngrid advertising are out of scope.
 >
 > Classic ESP32 uses a longer 500 ms channel dwell by default because short
 > active scans can intermittently return very small AP lists. Newer targets
-> default to 300 ms. The Android app also compares the response count with the
-> number of received `scan_ap` events to distinguish RF scan misses from
-> USB/UART transport loss.
+> default to 300 ms. Firmware advertising `scan_results_pull` stores a bounded
+> snapshot and the app retrieves it with `SCAN_RESULTS`; legacy firmware is
+> still supported through `scan_ap` events. The app compares the response count
+> with the number of verified pulled records (or legacy events) to distinguish
+> RF scan misses from USB/UART transport loss.
 >
 > On ESP32-C5, `SCAN_WIFI` keeps the radio in dual-band AUTO mode and restricts
 > the scan with the 2.4/5 GHz channel bitmaps. This avoids the idle 2.4 GHz
@@ -61,7 +64,8 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g",settle_ms?:number,dwell_ms?:number}` | `{ok:true,count:N,scanned:M,band,dwell_ms}` | `scan_ap` per matching network; firmware serializes scans, settles 250-5000 ms (default 900), uses a 200-1000 ms channel dwell (classic ESP32 defaults to 500 ms), and retries empty/low-result scans up to two times |
+| `SCAN_WIFI` | `{band?:"auto"|"2g"|"5g",settle_ms?:number,dwell_ms?:number,pull_results?:bool}` | Legacy: `{ok:true,count:N,scanned:M,band,dwell_ms}`. Pull: `{ok:true,scan_id,count:N,scanned:M,band,dwell_ms,kind:"wifi",truncated}` | Legacy firmware emits `scan_ap` events. When `pull_results:true` (or the firmware advertises `scan_results_pull`), the app instead calls `SCAN_RESULTS` and the firmware does not emit the event burst. Firmware serializes scans, settles 250-5000 ms (default 900), uses a 200-1000 ms channel dwell (classic ESP32 defaults to 500 ms), and retries empty/low-result scans up to two times. `count` is the number of retrievable records; `truncated:true` means the bounded snapshot dropped excess APs. |
+| `SCAN_RESULTS` | `{scan_id,offset,limit?}` | `{ok:true,scan_id,kind,offset,count,total,next_offset,crc32,results:[...]}` | Pull-based retrieval of the most recent `SCAN_WIFI` or `WPS_LOCK_SCAN` snapshot. `limit` is clamped to 1-8 (default 4). Each chunk is independently verifiable and may be retried with the same `scan_id`/`offset`. |
 | `SET_COUNTRY` | `{country:"US"|"GB"|"CH"|"01"|...}` | `{ok:true,country,allowed_2ghz_channels,allowed_5ghz_channels}` | Persists regulatory country and refreshes channel mask. Blank firmware NVS defaults to `CH`; an existing saved country is preserved. |
 | `START_SNIFF` | `{mode:"fixed"|"hop",band?:"auto"|"2g"|"5g",channel,interval_ms,eapol_only,bssid,all_beacons}` | `{ok:true}` | `PCAP` frames |
 | `STOP_SNIFF` | none | `{ok:true,captured,sent,dropped}` | |
@@ -86,7 +90,7 @@ PMKID capture and Pwngrid advertising are out of scope.
 | `START_BEACON` | `{ssids:"SSID1\nSSID2",band?:"auto",channel,interval_ms,random_bssid,hidden}` | `{ok:true,ssids,channel}` | |
 | `STOP_BEACON` | none | `{ok:true,sent,ssids}` | |
 | `BEACON_STATUS` | none | `{ok:true,active,ssids,sent,channel}` | |
-| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `captive_data`, `client_associated` |
+| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true,dns_hijack?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `portal_dns_hijack`, `captive_data`, `client_associated` |
 | `STOP_PORTAL` | none | `{ok:true}` | |
 | `RESET_HTML` | `{size}` | `{ok:true}` | `debug` events; creates/truncates the portal HTML file |
 | `SET_HTML_CHUNK` | `{data:"<base64>",last:bool,offset?:number}` | `{ok:true}` | `debug` events; writes directly to portal storage |
@@ -100,6 +104,7 @@ PMKID capture and Pwngrid advertising are out of scope.
 Portal data capture:
 
 - `captive_data` is emitted for POST `/login`, GET `/login`, and credential-like GET query parameters on `/` and `/continue`. `request_type` identifies the request form.
+- `/` and `/continue` serve portal content, `/login` handles submissions, and unmatched paths are served the landing page directly. Firmware also advertises `192.168.4.1` as the DHCP DNS server and best-effort intercepts plaintext IPv4 UDP DNS sent to external resolvers. Set `dns_hijack:false` to disable only the custom-resolver interception; DHCP DNS, wildcard DNS, and forced routes remain active.
 
 Portal HTML storage:
 
@@ -185,17 +190,48 @@ Burst response and loop start response fields:
 
 ## WPS Lock Detector
 
-`WPS_LOCK_SCAN` performs a passive WPS AP discovery scan. It listens for
-beacons/probe responses on the selected band, parses each AP's WPS IE, and emits
-one `wps_lock_ap` event per WPS-enabled AP. It does not attempt a WPS PIN or send
-WPS M1-M4 messages. After the passive pass it may run a normal non-WPS active
-scan only to resolve missing SSID names for the captured BSSIDs.
+`WPS_LOCK_SCAN` uses a hybrid discovery pass. A normal active Wi-Fi scan first
+builds the authoritative candidate set from APs whose scan record advertises
+WPS. A passive promiscuous pass then listens for beacons/probe responses on the
+selected band and enriches those candidates with WPS IE metadata such as AP
+Setup Locked, WPS version, configuration methods, and selected-registrar state.
+The active-scan SSID, channel, security, and RSSI are retained when available;
+passive-only WPS observations are still included. By default it emits one
+`wps_lock_ap` event per WPS-enabled AP in legacy mode. With
+`include_non_wps:true`, active-scan non-WPS APs are also returned as `scan_ap`
+records for UI filtering. It does not attempt a WPS PIN or send WPS M1-M4
+messages.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
-| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120}` | `{ok:true,count}` | `wps_lock_ap` |
+| `WPS_LOCK_SCAN` | `{band?:"auto"|"2g"|"5g",dwell_ms?:120,pull_results?:bool,include_non_wps?:bool}` | Legacy: `{ok:true,count}`. Pull: `{ok:true,scan_id,count,scanned,kind:"wps",include_non_wps,truncated}` | Default is WPS-only discovery. `include_non_wps:true` adds other active-scan APs with `wps:false`; pull results use `scan_ap` for those rows and `wps_lock_ap` for WPS rows. The WPS Pixie screen uses this to make its WPS-only toggle functional. |
 
 `STATUS.features` advertises `wps_lock_detect` when this scan is available.
+
+
+### Pull-based scan result chunks
+
+The app requests chunks until `next_offset >= total`. On timeout, invalid JSON,
+offset/count mismatch, CRC mismatch, or a non-progressing chunk, it retries the
+same chunk up to three times before preserving any records already received.
+
+`crc32` is the standard IEEE 802.3/zlib CRC-32 (polynomial `0xEDB88320`) over a
+UTF-8 canonical string. For each result in chunk order:
+
+```text
+wifi|<ssid_byte_len>:<ssid>|<BSSID>|<channel>|<rssi>|
+  <security_byte_len>:<security>|<wps 0/1>|<band>\n
+
+wps|<ssid_byte_len>:<ssid>|<BSSID>|<channel>|<rssi>|
+  <security_byte_len>:<security>|<wps 0/1>|<wps_parsed 0/1>|
+  <lock_reported 0/1>|<ap_setup_locked 0/1>|<wps_version>|
+  <config_methods>|<selected_registrar 0/1>|<last_seen_ms>\n
+```
+
+Lengths are UTF-8 byte lengths. The app computes the same canonical string from
+the parsed `results` array. The snapshot is bounded to 32 records per scan;
+`truncated` is set when the radio returned more results than the snapshot can
+hold.
 
 ## WPS Pixie Dust
 
@@ -204,8 +240,7 @@ for either a successful PSK recovery or capture of Pixie Dust material after a
 wrong-PIN rejection. The app owns PIN generation, the BSSID->PIN database, and
 the offline Pixiewps search. Firmware executes one PIN attempt per command.
 
-`STATUS.features` advertises `wps_pixie` on builds where raw WPS registrar
-injection is supported (currently ESP32-S3 and ESP32-C5).
+`STATUS.features` advertises `wps_pixie` on all ESP32 firmware builds where raw WPS registrar injection is supported.
 
 | Command | Args | Response | Events |
 |---|---|---|---|
