@@ -60,6 +60,13 @@ The app displays the firmware version and device ID. Minor version mismatches ar
 - Documented `SCAN_WIFI` `settle_ms` and `dwell_ms`, adaptive low-result scans, and response `dwell_ms`.
 - No on-wire breaking changes; protocol compatibility remains `v1.0`.
 
+### v1.0 - Evil Twin capture and DNS diagnostics
+- Added `capture_active`, `capture_target`, `dns_up`, and `clients` to `START_PORTAL` success and `PORTAL_STATUS` responses.
+- Added `capture_start_failed` as a `START_PORTAL` error code.
+- Added the `portal_sta_count` event for the authoritative SoftAP client count.
+- Documented common captive form routes: `/`, `/login`, `/submit`, `/connect`, `/signin`, `/auth`, and `/authorize`.
+- No on-wire breaking changes; protocol compatibility remains `v1.0`.
+
 ### v1.1 - Mesh Foundation (draft)
 - Add `MESH_PROVISION_KEY`, `MESH_CLEAR_KEY`, `MESH_AUTH_CHALLENGE`, `MESH_STATUS`, `MESH_ACTIVATE`, and `MESH_DEACTIVATE`.
 - Add mesh events: `mesh_status`, `mesh_heartbeat`, `mesh_node_joined`, `mesh_node_left`, `mesh_activation_result`, and `mesh_error`.

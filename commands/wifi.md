@@ -90,11 +90,11 @@ PMKID capture and Pwngrid advertising are out of scope.
 | `START_BEACON` | `{ssids:"SSID1\nSSID2",band?:"auto",channel,interval_ms,random_bssid,hidden}` | `{ok:true,ssids,channel}` | |
 | `STOP_BEACON` | none | `{ok:true,sent,ssids}` | |
 | `BEACON_STATUS` | none | `{ok:true,active,ssids,sent,channel}` | |
-| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true,dns_hijack?:bool=true}` | `{ok:true}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_viewed`, `portal_dns_hijack`, `captive_data`, `client_associated` |
+| `START_PORTAL` | `{ssid,band?:"auto",channel,bssid?,show_notice?:bool=true,dns_hijack?:bool=true}` | `{ok:true,capture_active,capture_target,dns_up,clients}` or `{ok:false,error:"regulatory_channel_blocked"|"softap_start_failed"|"capture_start_failed",msg,channel,allowed_*_channels}` | `portal_client_seen`, `portal_sta_count`, `portal_viewed`, `portal_dns_hijack`, `captive_data`, `client_associated` |
 | `STOP_PORTAL` | none | `{ok:true}` | |
 | `RESET_HTML` | `{size}` | `{ok:true}` | `debug` events; creates/truncates the portal HTML file |
 | `SET_HTML_CHUNK` | `{data:"<base64>",last:bool,offset?:number}` | `{ok:true}` | `debug` events; writes directly to portal storage |
-| `PORTAL_STATUS` | none | `{ok:true,running,html_size,html_expected,html_complete}` | |
+| `PORTAL_STATUS` | none | `{ok:true,running,html_size,html_expected,html_complete,capture_active,capture_target,dns_up,clients}` | |
 
 > Captive Portal and Evil Twin currently fail fast with a visible Android error;
 > they do not silently change channels. Evil Twin must use the target AP channel
@@ -103,8 +103,9 @@ PMKID capture and Pwngrid advertising are out of scope.
 
 Portal data capture:
 
-- `captive_data` is emitted for POST `/login`, GET `/login`, and credential-like GET query parameters on `/` and `/continue`. `request_type` identifies the request form.
-- `/` and `/continue` serve portal content, `/login` handles submissions, and unmatched paths are served the landing page directly. Firmware also advertises `192.168.4.1` as the DHCP DNS server and best-effort intercepts plaintext IPv4 UDP DNS sent to external resolvers. Set `dns_hijack:false` to disable only the custom-resolver interception; DHCP DNS, wildcard DNS, and forced routes remain active.
+- `captive_data` is emitted for POST `/`, `/login`, `/submit`, `/connect`, `/signin`, `/auth`, and `/authorize`; GET `/login` and credential-like GET query parameters on `/` and `/continue` are also captured. `request_type` identifies the request form.
+- `/` and `/continue` serve portal content, the form routes above handle submissions, and unmatched paths redirect to `/`. Firmware advertises `192.168.4.1` as the DHCP DNS server and best-effort intercepts plaintext IPv4 UDP DNS sent to external resolvers. Set `dns_hijack:false` to disable only the custom-resolver interception; DHCP DNS, wildcard DNS, and forced routes remain active.
+- `capture_active` reports whether EAPOL capture is running. `capture_target` reports whether a target BSSID was supplied. `dns_up` reports whether the wildcard portal DNS listener is bound. `clients` is the current SoftAP station count.
 
 Portal HTML storage:
 
