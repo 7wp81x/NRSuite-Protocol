@@ -8,6 +8,8 @@ Always check this table when pairing an app release with a firmware release.
 
 | App version | Firmware version | Protocol spec | Notes |
 |---|---|---|---|
+| v1.0.0 | v1.0.0 | v1.0 / proto_minor 2 | First stable non-mesh release |
+| v1.0.0-rc.3.1 | v1.0.0-rc.2.1 | v1.0 / proto_minor 2 | Stable release candidates |
 | v1.0.0-beta | v1.0.0-beta | v1.0 | Initial beta |
 | v1.0.0-beta.2 | v1.0.0-beta.2 | v1.0 | Defense, BLE recon, multi-device USB, and flasher updates |
 | v1.0.0-beta.2.2 / beta.2.4 | v1.0.0-beta.2 | v1.0 | External UART bridge and CH340/CP210x/FTDI hotfixes |
@@ -29,9 +31,9 @@ The app queries the firmware during the connection handshake via `STATUS`:
 {
   "ok": true,
   "chip": "ESP32-S3",
-  "fw": "1.0.0-beta.2",
+  "fw": "1.0.0",
   "proto": 1,
-  "proto_minor": 0,
+  "proto_minor": 2,
   "device_id": "NR1A2B3C4D",
   "features": ["wifi", "sniff", "deauth", "beacon", "portal"]
 }
