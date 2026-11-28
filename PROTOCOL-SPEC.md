@@ -185,7 +185,7 @@ Raw PCAP bytes. The firmware uses a sliding window and the app sends an ACK afte
   "chip": "ESP32-S3",
   "proto": 1,
   "proto_minor": 2,
-  "fw": "1.0.0",
+  "fw": "1.0.1",
   "device_id": "NR1A2B3C4D",
   "country": "US",
   "allowed_2ghz_channels": [1,2,3,4,5,6,7,8,9,10,11],

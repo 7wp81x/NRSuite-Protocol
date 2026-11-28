@@ -8,6 +8,7 @@ Always check this table when pairing an app release with a firmware release.
 
 | App version | Firmware version | Protocol spec | Notes |
 |---|---|---|---|
+| v1.0.1 | v1.0.1 | v1.0 / proto_minor 2 | Deauth loop duration, C5 portal HTML delivery, multi-client stability, and Serial Monitor IME fixes |
 | v1.0.0 | v1.0.0 | v1.0 / proto_minor 2 | First stable non-mesh release |
 | v1.0.0-rc.3.1 | v1.0.0-rc.2.1 | v1.0 / proto_minor 2 | Stable release candidates |
 | v1.0.0-beta | v1.0.0-beta | v1.0 | Initial beta |
@@ -31,7 +32,7 @@ The app queries the firmware during the connection handshake via `STATUS`:
 {
   "ok": true,
   "chip": "ESP32-S3",
-  "fw": "1.0.0",
+  "fw": "1.0.1",
   "proto": 1,
   "proto_minor": 2,
   "device_id": "NR1A2B3C4D",
